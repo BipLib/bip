@@ -1,5 +1,6 @@
 {
     "name": "biplib/bip",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "Bip\\": "src/"
