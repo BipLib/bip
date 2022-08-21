@@ -1,4 +1,5 @@
 {
+    "name": "biplib/bip",
     "autoload": {
         "psr-4": {
             "Bip\\": "src/"
