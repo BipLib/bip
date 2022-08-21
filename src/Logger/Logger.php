@@ -14,9 +14,5 @@ namespace Bip\Logger;
 
 class Logger
 {
-    static function test()
-    {
-        echo "test1 passed";
-    }
 
 }
