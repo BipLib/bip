@@ -34,7 +34,7 @@ class Logger
             if ($this->logArr[0] == '')
                 array_shift($this->logArr);
 
-            preg_match('#\[([0-9]+)\]#', end($this->logArr), $out);
+            preg_match('#\[([0-9]+)]#', end($this->logArr), $out);
             $this->logId = $out[1] ?? 0;
         } else
             $this->logId = 0;
