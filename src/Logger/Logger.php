@@ -29,7 +29,8 @@ class Logger
         $this->filePath = $filePath;
 
         if (is_file($filePath)) {
-            $this->logArr = explode(str_repeat('-', 80) . "\n", file_get_contents($filePath));
+            $this->logArr = explode("\n\n", file_get_contents($filePath));
+            var_dump($this->logArr);
             // remove first member if it is empty
             if ($this->logArr[0] == '')
                 array_shift($this->logArr);
@@ -49,11 +50,11 @@ class Logger
      */
     public function push(string $message, string $type = 'info')
     {
-        $message = "[" . ++$this->logId . '] [' . date('Y-m-d H:i:s') . '] [' . $type . "]\n\t" . str_replace("\n", "\n\t", $message) . "\n\n";
+        $message = '[' . ++$this->logId . '] [' . date('Y-m-d H:i:s') . '] [' . $type . "]\n\t" . str_replace("\n", "\n\t", $message);
         $this->logArr [] = $message;
     }
 
-    /**3
+    /**
      * set Maximum count for logs .
      * default is 100.
      * @param int $maxLogCount
@@ -73,7 +74,7 @@ class Logger
         else
             $offset = 0;
 
-        file_put_contents($this->filePath, implode(str_repeat('-', 80) . "\n", array_slice($this->logArr, $offset)));
+        file_put_contents($this->filePath, implode("\n\n", array_slice($this->logArr, $offset)));
 
     }
 
