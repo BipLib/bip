@@ -18,6 +18,7 @@ class Logger
     private array $logArr = [];
     private int $logId;
     private int $maxLogCount = 100;
+    private const DATE_FORMAT = 'Y-m-d H:i:s';
 
     /**
      * Logger constructor.
@@ -30,7 +31,6 @@ class Logger
 
         if (is_file($filePath)) {
             $this->logArr = explode("\n\n", file_get_contents($filePath));
-            var_dump($this->logArr);
             // remove first member if it is empty
             if ($this->logArr[0] == '')
                 array_shift($this->logArr);
@@ -39,7 +39,6 @@ class Logger
             $this->logId = $out[1] ?? 0;
         } else
             $this->logId = 0;
-
 
     }
 
@@ -50,7 +49,8 @@ class Logger
      */
     public function push(string $message, string $type = 'info')
     {
-        $message = '[' . ++$this->logId . '] [' . date('Y-m-d H:i:s') . '] [' . $type . "]\n\t" . str_replace("\n", "\n\t", $message);
+        //All of \n will be replaced with \n\t so explode() and implode() with delimiter \n\n is safe
+        $message = '[' . ++$this->logId . '] [' . date(self::DATE_FORMAT) . '] [' . $type . "]\n\t" . str_replace("\n", "\n\t", $message);
         $this->logArr [] = $message;
     }
 
