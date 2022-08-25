@@ -12,6 +12,19 @@
 namespace Bip\Logger;
 
 
+use function array_shift;
+use function array_slice;
+use function count;
+use function date;
+use function end;
+use function explode;
+use function file_get_contents;
+use function file_put_contents;
+use function implode;
+use function is_file;
+use function preg_match;
+use function str_replace;
+
 class Logger
 {
     private string $filePath;
