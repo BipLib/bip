@@ -25,7 +25,7 @@ class ConfigFactory
      */
     public static function create(string $configName, array $cfg): Config
     {
-        return self::$configs[$configName] = new Config($cfg);
+        return self::$configs[$configName] = new Config($cfg,$configName);
     }
 
     /**
