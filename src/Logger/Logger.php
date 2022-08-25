@@ -24,6 +24,7 @@ use function implode;
 use function is_file;
 use function preg_match;
 use function str_replace;
+use function print_r;
 
 class Logger
 {
@@ -57,12 +58,16 @@ class Logger
 
     /**
      * push a new log.
-     * @param string $message
+     * @param mixed $message
      * @param string $type
      */
-    public function push(string $message, string $type = 'info')
+    public function push(mixed $message, string $type = 'info')
     {
-        //All of \n will be replaced with \n\t so explode() and implode() with delimiter \n\n is safe
+        if(!is_string($message))
+            $message = print_r($message,true); //When the print_r return parameter is true, this function will return a string. Otherwise, the return value is true, So always will be return string.
+
+
+    //All of \n will be replaced with \n\t so explode() and implode() with delimiter \n\n is safe
         $message = '[' . ++$this->logId . '] [' . date(self::DATE_FORMAT) . '] [' . $type . "]\n\t" . str_replace("\n", "\n\t", $message);
         $this->logArr [] = $message;
     }
