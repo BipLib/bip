@@ -37,6 +37,15 @@ class Config
     }
 
     /**
+     * get config name.
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->configName;
+    }
+
+    /**
      * validate the config keys [only checks it is set].
      * @param array $configKeys
      * @throws Exception
