@@ -25,7 +25,7 @@ class ConfigFactory
      */
     public static function create(string $configName, array $cfg): Config
     {
-        return self::$configs[$configName] = new Config($cfg,$configName);
+        return self::$configs[] = new Config($cfg,$configName);
     }
 
     /**
@@ -34,10 +34,10 @@ class ConfigFactory
      */
     public static function get(string $configName): Config
     {
-        if(isset(self::$configs[$configName]))
-            return self::$configs[$configName];
-        else
-            throw new Exception("$configName config was not created by ConfigFactory");
+        foreach(self::$configs as $config)
+            if($config->getName() == $configName)
+                return $config;
+        throw new Exception("$configName config was not created by ConfigFactory");
     }
 
 }
