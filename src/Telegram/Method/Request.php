@@ -11,22 +11,26 @@
 namespace Bip\Telegram\Method;
 
 
-use Bip\App\Config;
-
 trait Request
 {
-
-    public Config $_config;
     /**
-     * call a telegram api method.
-     * @param string $method
-     * @param array $params
-     * @return mixed
-     * @throws \Exception
+     * bot api key;
+     * @var string
      */
+    private string $token;
+
+    /**
+     * set bot api key.
+     * @param string $token
+     */
+    public function setToken(string $token): void
+    {
+        $this->token = $token;
+    }
+
     public function call(string $method , array $params = []):mixed
     {
-        $ch = curl_init('https://api.telegram.org/bot'.$this->_config->get('token').'/'.$method);
+        $ch = curl_init('https://api.telegram.org/bot'.$this->token.'/'.$method);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS,$params);
         return json_decode(curl_exec($ch));
