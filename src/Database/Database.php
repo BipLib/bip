@@ -15,7 +15,9 @@ use Bip\App\Stage;
 
 interface Database
 {
-    public function insert(Stage $stage) : bool;
-    public function getStage() : Stage;
-    public function updateStage(Stage $stage) : bool;
+    public function insertUser(Stage $stage): bool;
+
+    public function getStage(): Stage|bool;
+
+    public function updateStage(Stage $stage): bool;
 }
