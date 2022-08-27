@@ -12,6 +12,7 @@ namespace Bip;
 
 
 use Bip\App\Config;
+use Bip\App\ConfigFactory;
 use Bip\App\Stage;
 use Bip\Database\Database;
 
@@ -21,8 +22,9 @@ class Bot
     private Stage $stage;
     private Database $database;
 
-    public function __construct(Config $config)
+    public function __construct()
     {
+        $config = ConfigFactory::get('bot');
         $this->config = $config;
         $config->validate(['token']);
 
