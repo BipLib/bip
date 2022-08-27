@@ -19,6 +19,7 @@ class Bot
 {
     private Config $config;
     private Stage $stage;
+    private Database $database;
 
     public function __construct(Config $config)
     {
@@ -38,6 +39,7 @@ class Bot
 
     public function setDatabase(Database $database)
     {
+        $this->database = $database;
     }
 
     /**
@@ -46,7 +48,17 @@ class Bot
     public function run()
     {
         $this->stage->_config = $this->config;
-        $this->stage->controller();
+        if($this->database->getStage() == false) {
+            $this->stage->controller();
+            unset($this->stage->_config);
+            $this->database->insertUser($this->stage);
+        }else{
+            $stage = $this->database->getStage();
+            $stage->_config = $this->config;
+            $stage->controller();
+            unset($stage->_config);
+            $this->database->updateStage($stage);
+        }
     }
 
 }
