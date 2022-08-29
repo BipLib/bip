@@ -11,56 +11,81 @@
 namespace Bip;
 
 
-use Bip\App\Config;
-use Bip\App\ConfigFactory;
+
 use Bip\App\Stage;
 use Bip\Database\Database;
 
 class Bot
 {
-    private Config $config;
     private Stage $stage;
     private Database $database;
 
-    public function __construct()
+    /**
+     * Bot constructor.
+     * @param Stage $stage
+     * @param Database $database
+     */
+    public function __construct(Stage $stage, Database $database)
     {
-        $config = ConfigFactory::get('bot');
-        $this->config = $config;
-        $config->validate(['token']);
+        $this->stage = $stage;
+        $this->database = $database;
 
+        if(!$this->database->insertUser($stage)){
+            $stages = (array) $this->database->getStages();
+            $stageName = array_key_last($stages);
+            $this->stage = new $stageName();
+            foreach ($stages[$stageName] as $propertyName => $propertyValue)
+                    $this->stage->{$propertyName} = $propertyValue;
+
+        }
     }
 
     /**
-     * set start stage, it will be run when user isn't in a stage.
-     * @param Stage $stage
+     * set a property to be add in stage.
+     * @param string $name
+     * @param mixed $value
      */
-    public function setStartStage(Stage $stage)
-    {
-        $this->stage = $stage;
+    public function setProperty(string $name, mixed $value){
+        $this->stage->{$name} = $value;
     }
 
-    public function setDatabase(Database $database)
-    {
-        $this->database = $database;
+    /**
+     * unset a property.
+     * @param string $name
+     */
+    public function unsetProperty(string $name){
+        unset($this->stage->{$name});
     }
-
     /**
      * run the bot.
      */
     public function run()
     {
-        $this->stage->_config = $this->config;
-        if($this->database->getStage() == false) {
-            $this->stage->controller();
-            unset($this->stage->_config);
-            $this->database->insertUser($this->stage);
-        }else{
-            $stage = $this->database->getStage();
-            $stage->_config = $this->config;
-            $stage->controller();
-            unset($stage->_config);
-            $this->database->updateStage($stage);
-        }
+        $this->stage->controller($this);
+        $this->database->updateStage($this->stage);
+
     }
+
+    /**
+     * start a Node.
+     * @param string $nodeName
+     */
+    public function startNode(string $nodeName)
+    {
+        if(!isset($this->stage->__node__))
+            $this->stage->__node__ = $nodeName;
+
+        $this->stage->{$this->stage->__node__}();
+    }
+
+    /**
+     * bind a node.
+     * @param string $nodeName
+     */
+    public function bindNode(string $nodeName)
+    {
+        $this->stage->__node__ = $nodeName;
+    }
+
 
 }
