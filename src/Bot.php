@@ -14,6 +14,7 @@ namespace Bip;
 
 use Bip\App\Stage;
 use Bip\Database\Database;
+use Exception;
 
 class Bot
 {
@@ -81,9 +82,15 @@ class Bot
     /**
      * bind a node.
      * @param string $nodeName
+     * @throws Exception
      */
     public function bindNode(string $nodeName)
     {
+        if(!method_exists($this->stage,$nodeName)) {
+            $stageName = $this->stage::class;
+            throw new Exception("Bind Error : [$nodeName] node not found in [$stageName]");
+        }
+
         $this->stage->__node__ = $nodeName;
     }
 
