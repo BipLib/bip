@@ -42,7 +42,7 @@ class LazyJsonDatabase implements Database
      */
     private function write()
     {
-        file_put_contents($this->file, json_encode($this->json), JSON_PRETTY_PRINT);
+        file_put_contents($this->file, json_encode($this->json,JSON_PRETTY_PRINT));
     }
 
     public function insertUser(Stage $stage): bool
