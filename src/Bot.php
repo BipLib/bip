@@ -12,24 +12,36 @@ namespace Bip;
 
 
 
+use Bip\App\Config;
 use Bip\App\Stage;
 use Bip\Database\Database;
+use Bip\Telegram\Telegram;
 use Exception;
 
 class Bot
 {
     private Stage $stage;
     private Database $database;
+    private Telegram $telegram;
+    private Config $config;
 
     /**
      * Bot constructor.
      * @param Stage $stage
      * @param Database $database
+     * @param Telegram $telegram
+     * @param Config $config
+     * @throws Exception
      */
-    public function __construct(Stage $stage, Database $database)
+    public function __construct(Stage $stage, Database $database,Telegram $telegram,Config $config)
     {
-        $this->stage = $stage;
+        $this->stage    = $stage;
         $this->database = $database;
+        $this->telegram = $telegram;
+        $this->config   = $config;
+
+        $config->validate(['token']);
+        $telegram->setToken($config->get('token'));
 
         if(!$this->database->insertUser($stage)){
             $stages = (array) $this->database->getStages();
@@ -62,7 +74,7 @@ class Bot
      */
     public function run()
     {
-        $this->stage->controller($this);
+        $this->stage->controller($this,$this->telegram);
         $this->database->updateStage($this->stage);
 
     }
