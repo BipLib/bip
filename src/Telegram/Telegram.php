@@ -11,20 +11,11 @@
 namespace Bip\Telegram;
 
 
-use Bip\App\ConfigFactory;
 use Bip\Telegram\Method\Request;
 
 class Telegram
 {
     use Request;
-
-    /**
-     * Telegram constructor.
-     */
-    public function __construct()
-    {
-        $this->setToken(ConfigFactory::get('bot')->get('token'));
-    }
 
     /**
      * Shortcut for sendMessage.
