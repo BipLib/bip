@@ -87,7 +87,7 @@ class Bot
      */
     public function startNode(string $nodeName)
     {
-        if(!isset($this->stage->_node))
+        if(empty($this->stage->_node))
             $this->stage->_node = $nodeName;
 
         $this->stage->{$this->stage->_node}();
