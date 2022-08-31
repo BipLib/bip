@@ -20,7 +20,9 @@ class Config
 
     public function __construct(array $config,string $configName = '')
     {
-        $this->config = $config;
+        foreach ($config as $cfgKey => $cfgVal)
+            $this->config[strtolower($cfgKey)] = $cfgVal;
+
         $this->configName = $configName;
     }
 
