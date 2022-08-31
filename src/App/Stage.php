@@ -16,8 +16,20 @@ use Bip\Telegram\Telegram;
 
 abstract class Stage
 {
+
+    /**
+     * the absolute address of stage.
+     * @var string
+     */
+    public string $_call;
+
     /**
      * in every run of the Stage, controller automatically called.
      */
     public abstract function controller(Bot $bot,Telegram $telegram);
+
+    public function __construct()
+    {
+        $this->_call = get_class($this);
+    }
 }
