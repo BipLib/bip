@@ -12,7 +12,7 @@ namespace Bip\Database;
 
 
 use Bip\App\Stage;
-use Bip\Telegram\Update;
+use stdClass;
 
 /**
  * Class LazyJsonDatabase , [This database is slow. it is designed to help the development]
@@ -30,7 +30,7 @@ class LazyJsonDatabase implements Database
     {
         $this->file = $file;
         if (is_file($file))
-            $this->json = json_decode(file_get_contents($file));
+            $this->json = json_decode(file_get_contents($file)); //caution : if an error occurs in json file (e.g syntax error) all data in database will be removed.
         else {
             file_put_contents($file, '[]');
             $this->json = json_decode('[]');
@@ -45,33 +45,38 @@ class LazyJsonDatabase implements Database
         file_put_contents($this->file, json_encode($this->json,JSON_PRETTY_PRINT));
     }
 
-    public function insertUser(Stage $stage): bool
+    public function insertUser(int $chat_id ,Stage $stage): bool
     {
-        foreach ($this->json as $row) {
-            if ($row->chat_id == Update::asObject()->message->chat->id)
+        foreach ($this->json as $row)
+            if ($row->chat_id == $chat_id)
                 return false;
-        }
 
-        $this->json[] = ["chat_id" => Update::asObject()->message->chat->id, "stages" => [get_class($stage) => $stage]];
+        $obj = new stdClass();
+        $obj->chat_id   = $chat_id;
+        $obj->stage     = $stage;
+
+        $this->json[]   = $obj;
         $this->write();
         return true;
     }
 
-    public function getStages(): object|bool
+    public function getStage(int $chat_id): object|bool
     {
         foreach ($this->json as $row) {
-            if ($row->chat_id == Update::asObject()->message->chat->id)
-                if (isset($row->stages))
-                    return $row->stages;
+            if ($row->chat_id == $chat_id)
+                if (isset($row->stage))
+                    return $row->stage;
+                else
+                    return new StdClass();
         }
         return false;
     }
 
-    public function updateStage(Stage $stage): bool
+    public function updateStage(int $chat_id,object $stage): bool
     {
         foreach ($this->json as $rowKey => $rowVal) {
-            if ($rowVal->chat_id == Update::asObject()->message->chat->id) {
-                $this->json[$rowKey]->stages->{get_class($stage)} = $stage;
+            if ($rowVal->chat_id == $chat_id) {
+                $this->json[$rowKey]->stage = $stage;
                 $this->write();
                 return true;
             }
