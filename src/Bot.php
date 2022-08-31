@@ -25,7 +25,7 @@ class Bot
     private Database $database;
     private Telegram $telegram;
     private Config $config;
-
+    private string $newStage;
     /**
      * Bot constructor.
      * @param Stage $stage
@@ -77,6 +77,13 @@ class Bot
     public function run()
     {
         $this->stage->controller($this,$this->telegram);
+
+        if(!empty($this->newStage)) {
+            $newStage = $this->newStage; //method call conflict.
+            $this->stage = new $newStage();
+            unset($newStage);
+        }
+
         $this->database->updateStage(Update::asObject()->message->chat->id,$this->stage);
 
     }
@@ -106,6 +113,14 @@ class Bot
         }
 
         $this->stage->_node = $nodeName;
+    }
+
+    /**
+     * change the stage. (change will be applied when controller is finished in the current stage)
+     * @param string $newStage
+     */
+    public function changeStage(string $newStage){
+        $this->newStage = $newStage;
     }
 
 
