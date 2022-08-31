@@ -76,14 +76,22 @@ class Bot
      */
     public function run()
     {
+        // call controller
         $this->stage->controller($this,$this->telegram);
 
+        // change stage if $newStage be isn't empty.
         if(!empty($this->newStage)) {
             $newStage = $this->newStage; //method call conflict.
             $this->stage = new $newStage();
             unset($newStage);
         }
 
+        // remove stage property if they be Bot and Telegram instance.(were passed in controller arguments)
+            foreach ($this->stage as $propertyKey => $propertyVal)
+                if(($propertyVal instanceof Bot) or ($propertyVal instanceof Telegram))
+                    unset($this->stage->{$propertyKey});
+
+        // update stage in database
         $this->database->updateStage(Update::asObject()->message->chat->id,$this->stage);
 
     }
