@@ -16,7 +16,11 @@ use Bip\Telegram\Telegram;
 
 abstract class Stage
 {
-
+    /**
+     * next node name.
+     * @var string
+     */
+    public string $_node;
     /**
      * the absolute address of stage.
      * @var string
