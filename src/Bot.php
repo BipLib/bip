@@ -16,11 +16,12 @@ use Bip\App\Config;
 use Bip\App\Stage;
 use Bip\Database\Database;
 use Bip\Telegram\Telegram;
+use Bip\Telegram\Update;
 use Exception;
 
 class Bot
 {
-    private Stage $stage;
+    private object $stage;
     private Database $database;
     private Telegram $telegram;
     private Config $config;
@@ -43,11 +44,12 @@ class Bot
         $config->validate(['token']);
         $telegram->setToken($config->get('token'));
 
-        if(!$this->database->insertUser($stage)){
-            $stages = (array) $this->database->getStages();
-            $stageName = array_key_last($stages);
-            $this->stage = new $stageName();
-            foreach ($stages[$stageName] as $propertyName => $propertyValue)
+        if(!$this->database->insertUser(Update::asObject()->message->chat->id,$this->stage)){
+            //convert stdClass object to Stage object
+            $stageStdClass =  $this->database->getStage(Update::asObject()->message->chat->id);
+            $call = $stageStdClass->_call;
+            $this->stage = new $call();
+            foreach ($stageStdClass as $propertyName => $propertyValue)
                     $this->stage->{$propertyName} = $propertyValue;
 
         }
@@ -75,7 +77,7 @@ class Bot
     public function run()
     {
         $this->stage->controller($this,$this->telegram);
-        $this->database->updateStage($this->stage);
+        $this->database->updateStage(Update::asObject()->message->chat->id,$this->stage);
 
     }
 
@@ -85,10 +87,10 @@ class Bot
      */
     public function startNode(string $nodeName)
     {
-        if(!isset($this->stage->__node__))
-            $this->stage->__node__ = $nodeName;
+        if(!isset($this->stage->_node))
+            $this->stage->_node = $nodeName;
 
-        $this->stage->{$this->stage->__node__}();
+        $this->stage->{$this->stage->_node}();
     }
 
     /**
@@ -103,7 +105,7 @@ class Bot
             throw new Exception("Bind Error : [$nodeName] node not found in [$stageName]");
         }
 
-        $this->stage->__node__ = $nodeName;
+        $this->stage->_node = $nodeName;
     }
 
 
