@@ -26,8 +26,6 @@ class StartStage extends Stage{
         $this->bot = $bot;
 
         $bot->startNode('getNameNode');
-
-        unset($this->tel, $this->bot);
     }
     public function getNameNode(){
         $this->tel->msg("What is your name ?");
