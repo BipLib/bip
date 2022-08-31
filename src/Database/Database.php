@@ -17,21 +17,24 @@ interface Database
 {
     /**
      * insert user. if the user exists, returns false, on success returns true.
+     * @param int $chat_id
      * @param Stage $stage
      * @return bool
      */
-    public function insertUser(Stage $stage): bool;
+    public function insertUser(int $chat_id, Stage $stage): bool;
 
     /**
-     * get the user stages. returns false on failure.
+     * get the user stage. returns false when user dose not found.
+     * @param int $chat_id
      * @return object|bool
      */
-    public function getStages(): object|bool;
+    public function getStage(int $chat_id): object|bool;
 
     /**
-     * update the stage. returns true on success and false on failure.
-     * @param Stage $stage
+     * update the user stage . returns true on success and false when user dose not found.
+     * @param int $chat_id
+     * @param object $stage
      * @return bool
      */
-    public function updateStage(Stage $stage): bool;
+    public function updateStage(int $chat_id, object $stage): bool;
 }
