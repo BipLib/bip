@@ -105,7 +105,7 @@ class Bot
         if(empty($this->stage->_node))
             $this->stage->_node = $nodeName;
 
-        $this->stage->{$this->stage->_node}();
+        $this->stage->{$this->stage->_node.'Node'}();
     }
 
     /**
@@ -115,9 +115,9 @@ class Bot
      */
     public function bindNode(string $nodeName)
     {
-        if(!method_exists($this->stage,$nodeName)) {
-            $stageName = $this->stage::class;
-            throw new Exception("Bind Error : [$nodeName] node not found in [$stageName]");
+        if(!method_exists($this->stage,$nodeName.'Node')) {
+            $stageName = get_class($this->stage);
+            throw new Exception("Bind Error : [$nodeName"."Node] method not found in [$stageName] stage");
         }
 
         $this->stage->_node = $nodeName;
