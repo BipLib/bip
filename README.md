@@ -25,23 +25,23 @@ class StartStage extends Stage{
         $this->tel = $telegram;
         $this->bot = $bot;
 
-        $bot->startNode('getNameNode');
+        $bot->startNode('getName');
     }
     public function getNameNode(){
         $this->tel->msg("What is your name ?");
-        $this->bot->bindNode('getLastNameNode');
+        $this->bot->bindNode('getLastName');
     }
     public function getLastNameNode(){
         $this->name = Update::asObject()->message->text;
         $this->tel->msg("What is your lastname ?");
-        $this->bot->bindNode('endNode');
+        $this->bot->bindNode('end');
 
     }
     public function endNode(){
         $this->lastName = Update::asObject()->message->text;
         $this->tel->msg("Your name is $this->name and your lastname is $this->lastName");
         unset($this->name,$this->lastname);
-        $this->bot->bindNode('getNameNode');
+        $this->bot->bindNode('getName');
     }
 
 }
