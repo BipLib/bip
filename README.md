@@ -14,10 +14,11 @@ A simple bot that takes first and last names and then prints both.
 // StartStage.php
 ...
 class StartStage extends Stage{
+    #Manually assigned (non-primitive types)
     public Telegram $tel;
     public Bot $bot;
 
-    #Automatically reassigned :
+    #Automatically reassigned (primitive types)
     public string $name ;
     public string $lastName;
 
