@@ -65,7 +65,7 @@ ConfigFactory::create('bot',[               /* creating config with name "bot"  
 require __DIR__.'/vendor/autoload.php';
 ...
 $bot = new Bot(
-    new StartStage(),                       /* stage class in StartStage.php      */
+    new StartStage(),                       /* start stage (StartStage.php)       */
     new LazyJsonDatabase('database.json'),  /* json file-based database for test  */
     new Telegram(),                         /* using telegram driver in stage     */
     ConfigFactory::get('bot'),              /* get "bot" config from config.php   */
