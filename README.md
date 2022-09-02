@@ -1,5 +1,5 @@
 # PHP Bip Library
-Create Stage Base & Fully Object Oriented Telegram Bots With Bip Library.
+Create Stage Base & Fully Object Oriented Webhook Telegram Bots With PHP Bip Library.
 
 Installation (early access)
 ------------
