@@ -40,9 +40,10 @@ class StartStage extends Stage{
     }
     public function endNode(){
         $this->lastName = Update::asObject()->message->text;
-        $this->tel->msg("Your name is $this->name and your lastname is $this->lastName");
-        unset($this->name,$this->lastname);
-        $this->bot->bindNode('getName');
+        $this->tel->msg("Authentication Successfully Done ! Your name is $this->name and your lastname is $this->lastName");
+        $this->bot->changeStage('Stages\MenuStage');
+        
+        // saving name and lastname in database
     }
 
 }
