@@ -86,9 +86,9 @@ class Bot
             unset($newStage);
         }
 
-        // remove stage property if they be Bot and Telegram instance.(were passed in controller arguments)
+        // remove all non-primitive data types
             foreach ($this->stage as $propertyKey => $propertyVal)
-                if(($propertyVal instanceof Bot) or ($propertyVal instanceof Telegram))
+                if(is_object($propertyVal))
                     unset($this->stage->{$propertyKey});
 
         // update stage in database
