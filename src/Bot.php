@@ -97,19 +97,19 @@ class Bot
     }
 
     /**
-     * start a Node.
-     * @param string $nodeName
+     * starts the bound node. if no node was bound default NodeName will be started
+     * @param string $defaultNodeName
      */
-    public function startNode(string $nodeName)
+    public function startNode(string $defaultNodeName)
     {
         if(empty($this->stage->_node))
-            $this->stage->_node = $nodeName;
+            $this->stage->_node = $defaultNodeName;
 
         $this->stage->{$this->stage->_node.'Node'}();
     }
 
     /**
-     * bind a node.
+     * binds a node.
      * @param string $nodeName
      * @throws Exception
      */
@@ -124,7 +124,7 @@ class Bot
     }
 
     /**
-     * change the stage. (change will be applied when controller is finished in the current stage)
+     * changes the stage. (change will be applied when controller is finished in the current stage)
      * @param string $newStage
      */
     public function changeStage(string $newStage){
