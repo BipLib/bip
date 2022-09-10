@@ -21,38 +21,38 @@ class Update
     /**
      * constructor is private to prevent making instance of Update.
      */
-    private function __construct(){}
+    private function __construct()
+    {
+    }
 
     /**
      * initialize update.
      * @param null $associative
      */
-    private static function init($associative = null){
+    private static function init($associative = null)
+    {
         if (empty(self::$update))
-            self::$update = json_decode(file_get_contents('php://input'),$associative);
+            self::$update = json_decode(file_get_contents('php://input'), $associative);
     }
 
     /**
      * get update as Array.
      * @return array|null
      */
-    public static function asArray():array|null
+    public static function asArray(): array|null
     {
         self::init(true);
-        return (array) self::$update;
+        return (array)self::$update;
     }
 
     /**
      * get update as Object.
      * @return object|null
      */
-    public static function asObject():object|null
+    public static function asObject(): object|null
     {
         self::init();
         return self::$update;
     }
-    //public function asBundle(): UpdateBundle|null
-
-
 
 }
