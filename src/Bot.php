@@ -13,6 +13,7 @@ namespace Bip;
 
 
 use Bip\App\Config;
+use Bip\App\RouteRule;
 use Bip\App\Stage;
 use Bip\Database\Database;
 use Bip\Telegram\Telegram;
@@ -26,6 +27,11 @@ class Bot
     private Telegram $telegram;
     private Config $config;
     private string $newStage;
+    private string $toBeRoutedNode;
+    private string $routedNode;
+
+
+
     /**
      * Bot constructor.
      * @param Stage $stage
@@ -34,23 +40,23 @@ class Bot
      * @param Config $config
      * @throws Exception
      */
-    public function __construct(Stage $stage, Database $database,Telegram $telegram,Config $config)
+    public function __construct(Stage $stage, Database $database, Telegram $telegram, Config $config)
     {
-        $this->stage    = $stage;
+        $this->stage = $stage;
         $this->database = $database;
         $this->telegram = $telegram;
-        $this->config   = $config;
+        $this->config = $config;
 
         $config->validate(['token']);
         $telegram->setToken($config->get('token'));
 
-        if(!$this->database->insertUser(Update::asObject()->message->chat->id,$this->stage)){
+        if (!$this->database->insertUser(Update::asObject()->message->chat->id, $this->stage)) {
             //convert stdClass object to Stage object
-            $stageStdClass =  $this->database->getStage(Update::asObject()->message->chat->id);
+            $stageStdClass = $this->database->getStage(Update::asObject()->message->chat->id);
             $call = $stageStdClass->_call;
             $this->stage = new $call();
             foreach ($stageStdClass as $propertyName => $propertyValue)
-                    $this->stage->{$propertyName} = $propertyValue;
+                $this->stage->{$propertyName} = $propertyValue;
 
         }
     }
@@ -60,7 +66,8 @@ class Bot
      * @param string $name
      * @param mixed $value
      */
-    public function setProperty(string $name, mixed $value){
+    public function setProperty(string $name, mixed $value)
+    {
         $this->stage->{$name} = $value;
     }
 
@@ -68,46 +75,41 @@ class Bot
      * unset a property.
      * @param string $name
      */
-    public function unsetProperty(string $name){
+    public function unsetProperty(string $name)
+    {
         unset($this->stage->{$name});
     }
+
     /**
      * run the bot.
      */
     public function run()
     {
-        // call controller
-        $this->stage->controller($this,$this->telegram);
+        // call the stage controller
+        $this->stage->controller($this, $this->telegram);
+
+        // call the reserved node
+        if(!empty($this->routedNode))
+            $this->stage->{$this->routedNode . 'Node'}();
+        elseif(!empty($this->stage->_node))
+            $this->stage->{$this->stage->_node . 'Node'}();
 
         // change stage if $newStage be isn't empty.
-        if(!empty($this->newStage)) {
+        if (!empty($this->newStage)) {
             $newStage = $this->newStage; //method call conflict.
             $this->stage = new $newStage();
             unset($newStage);
         }
 
         // remove all non-primitive data types
-            foreach ($this->stage as $propertyKey => $propertyVal)
-                if(is_object($propertyVal))
-                    unset($this->stage->{$propertyKey});
+        foreach ($this->stage as $propertyKey => $propertyVal)
+            if (is_object($propertyVal))
+                unset($this->stage->{$propertyKey});
 
         // update stage in database
-        $this->database->updateStage(Update::asObject()->message->chat->id,$this->stage);
+        $this->database->updateStage(Update::asObject()->message->chat->id, $this->stage);
 
     }
-
-    /**
-     * starts the bound node. if no node was bound default NodeName will be started
-     * @param string $defaultNodeName
-     */
-    public function startNode(string $defaultNodeName)
-    {
-        if(empty($this->stage->_node))
-            $this->stage->_node = $defaultNodeName;
-
-        $this->stage->{$this->stage->_node.'Node'}();
-    }
-
     /**
      * binds a node.
      * @param string $nodeName
@@ -127,9 +129,45 @@ class Bot
      * changes the stage. (change will be applied when controller is finished in the current stage)
      * @param string $newStage
      */
-    public function changeStage(string $newStage){
+    public function changeStage(string $newStage)
+    {
         $this->newStage = $newStage;
     }
+
+    /**
+     * route to node.
+     * @param string $nodeName
+     * @return RouteRule
+     * @throws Exception
+     */
+    public function route(string $nodeName): RouteRule {
+        if (!method_exists($this->stage, $nodeName . 'Node')) {
+            $stageName = get_class($this->stage);
+            throw new Exception("Route Error : [$nodeName" . "Node] method not found in [$stageName] stage");
+        }
+
+        $this->toBeRoutedNode = $nodeName;
+        return new RouteRule($this);
+    }
+
+    /**
+     * get to be routed node. (last route $nodeName)
+     * @return string
+     */
+    public function getToBeRoutedNode(): string
+    {
+        return $this->toBeRoutedNode;
+    }
+
+    /**
+     * set routed node.
+     * @param string $routedNode
+     */
+    public function setRoutedNode(string $routedNode): void
+    {
+        $this->routedNode = $routedNode;
+    }
+
 
 
 }
