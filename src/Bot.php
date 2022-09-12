@@ -61,6 +61,8 @@ class Bot
         }
     }
 
+
+
     /**
      * set a property to be add in stage.
      * @param string $name
@@ -86,7 +88,7 @@ class Bot
     public function run()
     {
         // call the stage controller
-        $this->stage->controller($this, $this->telegram);
+        $this->stage->controller($this);
 
         // call the reserved node
         if(!empty($this->routedNode))
@@ -110,6 +112,7 @@ class Bot
         $this->database->updateStage(Update::asObject()->message->chat->id, $this->stage);
 
     }
+
     /**
      * binds a node.
      * @param string $nodeName
@@ -166,6 +169,15 @@ class Bot
     public function setRoutedNode(string $routedNode): void
     {
         $this->routedNode = $routedNode;
+    }
+
+    /**
+     * get Telegram driver.
+     * @return Telegram
+     */
+    public function getTelegram(): Telegram
+    {
+        return $this->telegram;
     }
 
 

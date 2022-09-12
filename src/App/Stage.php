@@ -30,7 +30,7 @@ abstract class Stage
     /**
      * in every run of the Stage, controller automatically called.
      */
-    public abstract function controller(Bot $bot,Telegram $telegram);
+    public abstract function controller(Bot $bot);
 
     public function __construct()
     {
