@@ -22,11 +22,12 @@ class StartStage extends Stage{
     public string $name ;
     public string $lastName;
 
-    public function controller(Bot $bot,Telegram $telegram){
-        $this->tel = $telegram;
+    public function controller(Bot $bot){
+        $this->tel = $bot->getTelegram();
         $this->bot = $bot;
+        
+        $bot->route('getName')->when(Update::asObject()->message->text == '/getName');
 
-        $bot->startNode('getName');
     }
     public function getNameNode(){
         $this->tel->msg("What is your name ?");
