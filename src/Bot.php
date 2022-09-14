@@ -50,9 +50,9 @@ class Bot
         $config->validate(['token']);
         $telegram->setToken($config->get('token'));
 
-        if (!$this->database->insertUser(Update::asObject()->message->chat->id, $this->stage)) {
+        if (!$this->database->insertUser(Update::get()->message->chat->id, $this->stage)) {
             //convert stdClass object to Stage object
-            $stageStdClass = $this->database->getStage(Update::asObject()->message->chat->id);
+            $stageStdClass = $this->database->getStage(Update::get()->message->chat->id);
             $call = $stageStdClass->_call;
             $this->stage = new $call();
             foreach ($stageStdClass as $propertyName => $propertyValue)
@@ -109,7 +109,7 @@ class Bot
                 unset($this->stage->{$propertyKey});
 
         // update stage in database
-        $this->database->updateStage(Update::asObject()->message->chat->id, $this->stage);
+        $this->database->updateStage(Update::get()->message->chat->id, $this->stage);
 
     }
 
