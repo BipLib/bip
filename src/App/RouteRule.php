@@ -15,12 +15,14 @@ use Bip\Bot;
 
 class RouteRule
 {
+    private static bool $isRouted = false;
     private bool $result = true;
     private Bot $bot;
 
     public function __construct(Bot $bot)
     {
         $this->bot = $bot;
+        $this->result = !self::$isRouted && $this->result;
     }
 
     public function when(bool $condition): RouteRule
@@ -31,8 +33,10 @@ class RouteRule
 
     public function __destruct()
     {
-        if ($this->result)
+        if ($this->result) {
             $this->bot->setRoutedNode($this->bot->getToBeRoutedNode());
+            self::$isRouted = true;
+        }
 
     }
 
