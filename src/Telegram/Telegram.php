@@ -17,13 +17,18 @@ class Telegram
 {
     use Request;
 
+    public function __construct()
+    {
+        new Update(json_decode(file_get_contents('php://input')));
+    }
+
     /**
      * Shortcut for sendMessage.
      * @param string $text
      */
     public function msg(string $text){
         $this->call("sendMessage",[
-            'chat_id'=>Update::asObject()->message->chat->id,
+            'chat_id'=>Update::get()->message->chat->id,
             'text'=>$text,
         ]);
     }
