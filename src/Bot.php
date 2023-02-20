@@ -25,11 +25,9 @@ class Bot
     private object $stage;
     private Database $database;
     private Telegram $telegram;
-    private Config $config;
     private string $newStage;
     private string $toBeRoutedNode;
     private string $routedNode;
-
 
 
     /**
@@ -37,18 +35,17 @@ class Bot
      * @param Stage $stage
      * @param Database $database
      * @param Telegram $telegram
-     * @param Config $config
      * @throws Exception
      */
-    public function __construct(Stage $stage, Database $database, Telegram $telegram, Config $config)
+    public function __construct(Stage $stage, Database $database, Telegram $telegram)
     {
         $this->stage = $stage;
         $this->database = $database;
         $this->telegram = $telegram;
-        $this->config = $config;
 
-        $config->validate(['token']);
-        $telegram->setToken($config->get('token'));
+
+        Config::validate(['token']);
+        $telegram->setToken(Config::get('token'));
 
         if (!$this->database->insertUser(Update::get()->message->chat->id, $this->stage)) {
             //convert stdClass object to Stage object
