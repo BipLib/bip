@@ -56,10 +56,12 @@ class StartStage extends Stage{
 ```php
 //config.php
 ...
-ConfigFactory::create('bot',[               /* creating config with name "bot"   */
+Config::init([               /* creating config with name "bot"   */
     'token'     => 'your-api-key',
-    
-    /* more config items ...*/
+    'admins'    => [admin-id,...],
+    'database'  => new LazyJsonDatabase('database.json'),  /* json file-based database for test  */
+
+    /* more config items  ...*/
     
 ]);
 ```
@@ -71,9 +73,7 @@ require __DIR__.'/vendor/autoload.php';
 ...
 $bot = new Bot(
     new StartStage(),                       /* start stage (StartStage.php)       */
-    new LazyJsonDatabase('database.json'),  /* json file-based database for test  */
     new Telegram(),                         /* using telegram driver in stage     */
-    ConfigFactory::get('bot'),              /* get "bot" config from config.php   */
 );
 $bot->run();
 ```
