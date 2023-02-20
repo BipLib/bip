@@ -15,47 +15,56 @@ use Exception;
 
 class Config
 {
-    private array $config;
-    private string $configName;
+    private static $config = null;
+    private array $configArr;
 
-    public function __construct(array $config,string $configName = '')
+    /**
+     * @param array $config
+     * @return Config
+     */
+    public static function init(array $config) : Config
+    {
+        if(self::$config == null)
+            self::$config = new Config($config);
+        return self::$config;
+    }
+
+    /**
+     * Config constructor.
+     * @param array $config
+     */
+    private function __construct(array $config)
     {
         foreach ($config as $cfgKey => $cfgVal)
-            $this->config[strtolower($cfgKey)] = $cfgVal;
+            self::$config->configArr[strtolower($cfgKey)] = $cfgVal;
 
-        $this->configName = $configName;
     }
 
     /**
      * get a config by key.
      * @throws Exception
      */
-    public function get(string $configKey) : mixed
+    public static function get(string $configKey) : mixed
     {
-        if(isset($this->config[$configKey]))
-            return $this->config[$configKey];
+        Config::validate([$configKey]);
+        $configKey = strtolower($configKey);
+        if(isset(self::$config->configArr[$configKey]))
+            return self::$config->configArr[$configKey];
         else
-            throw new Exception("Config Not Found : failed to get key [$configKey] in [$this->configName] config");
+            throw new Exception('Config Not Found : failed to get key ['.$configKey.'] in ['.self::$config->configName.'] config');
     }
 
-    /**
-     * get config name.
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->configName;
-    }
 
     /**
      * validate the config keys [only checks it is set].
      * @param array $configKeys
      * @throws Exception
      */
-    public function validate(array $configKeys){
+    public static function validate(array $configKeys): void
+    {
         foreach ($configKeys as $configKey){
-            if(!isset($this->config[$configKey]))
-                throw new Exception("Config Not Found : failed to get key [$configKey] in [$this->configName] config");
+            if(!isset(self::$config->configArr[$configKey]))
+                throw new Exception('Config Not Found : failed to get key ['.$configKey.'] in ['.self::$config->configName.'] config');
 
         }
     }
