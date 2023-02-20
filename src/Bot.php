@@ -33,18 +33,16 @@ class Bot
     /**
      * Bot constructor.
      * @param Stage $stage
-     * @param Database $database
      * @param Telegram $telegram
      * @throws Exception
      */
-    public function __construct(Stage $stage, Database $database, Telegram $telegram)
+    public function __construct(Stage $stage, Telegram $telegram)
     {
         $this->stage = $stage;
-        $this->database = $database;
+        $this->database = Config::get('database');
         $this->telegram = $telegram;
 
 
-        Config::validate(['token']);
         $telegram->setToken(Config::get('token'));
 
         if (!$this->database->insertUser(Update::get()->message->chat->id, $this->stage)) {
