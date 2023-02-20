@@ -16,32 +16,44 @@ use Exception;
 class Config
 {
     private static $config = null;
-    private array $configArr;
+    private array $configArr = [];
 
     /**
-     * @param array $config
+     * initialize the config. if you want to add a config, use Config::add() instead.
+     * @param array $config the config array
      * @return Config
      */
     public static function init(array $config) : Config
     {
-        if(self::$config == null)
-            self::$config = new Config($config);
+        if(self::$config == null) {
+            self::$config = new Config();
+            Config::add($config);
+        }
+
         return self::$config;
     }
 
     /**
-     * Config constructor.
-     * @param array $config
+     * Config constructor. if you want to create a new config, use Config::init() instead.
      */
-    private function __construct(array $config)
+    private function __construct(){}
+
+    /**
+     * add a config to the config array. if the key is already set, it will be overwritten.
+     * @param array $config the config array
+     */
+    public static function add(array $config) : void
     {
+        if(self::$config == null)
+            Config::init($config);
+
         foreach ($config as $cfgKey => $cfgVal)
             self::$config->configArr[strtolower($cfgKey)] = $cfgVal;
-
     }
 
     /**
-     * get a config by key.
+     * get a config by key. if the key is not set, it will throw an exception.
+     * @param string $configKey the key of the config
      * @throws Exception
      */
     public static function get(string $configKey) : mixed
@@ -56,8 +68,8 @@ class Config
 
 
     /**
-     * validate the config keys [only checks it is set].
-     * @param array $configKeys
+     * validate the config keys [only checks it is set]. if the key is not set, it will throw an exception.
+     * @param array $configKeys the keys of the config
      * @throws Exception
      */
     public static function validate(array $configKeys): void
