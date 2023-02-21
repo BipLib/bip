@@ -3,8 +3,10 @@
     "description":"Create Stage Base & Fully Object-Oriented Webhook Telegram Bots With PHP Bip Library.",
     "license": "MIT",
     "autoload": {
+      "files": ["src/helpers.php"],
         "psr-4": {
-            "Bip\\": "src/"
+            "Bip\\": "src/",
+            "Bots\\": "bots/"
         }
     },
   "require": {
