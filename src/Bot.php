@@ -49,7 +49,6 @@ class Bot
         $this->stage = $stage;
         $this->database = Config::get('database');
 
-        Update::init(json_decode(file_get_contents('php://input')));
 
         if (!$this->database->insertUser(Update::get()->message->chat->id, $this->stage)) {
             //convert stdClass object to Stage object

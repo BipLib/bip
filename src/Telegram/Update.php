@@ -11,34 +11,46 @@
 namespace Bip\Telegram;
 
 
+use Bip\Telegram\Update\Message;
+
+/**
+ * Class Update
+ * @package Bip\Telegram
+ * @property Message $message
+ */
 class Update
 {
-    private static object $update;
+    private static Update $update;
+    private object $object;
 
-    public function __construct(object $update)
-    {
-        if (empty(self::$update))
-            self::$update = $update;
+    /**
+     * Update constructor.
+     */
+    private function __construct(){
+
     }
 
     /**
-     * get update.
-     * @return object
+     * get update instance.
+     * @return Update
      */
     public static function get(): object
     {
-        return self::$update;
+        self::init();
+        return self::$update->object;
     }
 
     /**
-     * set update.
-     * @param object $update
-     * @return void
+     * initialize update.
      */
-    public static function set(object $update): void
+    public static function init(): void
     {
-        self::$update = $update;
+        if(empty(self::$update)) {
+            self::$update = new Update();
+            self::$update->object = json_decode(file_get_contents('php://input'));
+        }
     }
+
 
 
 }
