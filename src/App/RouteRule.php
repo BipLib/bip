@@ -17,14 +17,17 @@ class RouteRule
 {
     private static bool $isRouted = false;
     private bool $result = true;
-    private Bot $bot;
 
-    public function __construct(Bot $bot)
+    public function __construct()
     {
-        $this->bot = $bot;
         $this->result = !self::$isRouted && $this->result;
     }
 
+    /**
+     * add a condition to the route rule.
+     * @param bool $condition
+     * @return RouteRule
+     */
     public function when(bool $condition): RouteRule
     {
         $this->result = $this->result && $condition;
@@ -34,7 +37,7 @@ class RouteRule
     public function __destruct()
     {
         if ($this->result) {
-            $this->bot->setRoutedNode($this->bot->getToBeRoutedNode());
+            Bot::setRoutedNode(Bot::getToBeRoutedNode());
             self::$isRouted = true;
         }
 

@@ -11,8 +11,6 @@
 namespace Bip\App;
 
 
-use Bip\Bot;
-use Bip\Telegram\Telegram;
 
 abstract class Stage
 {
@@ -30,7 +28,7 @@ abstract class Stage
     /**
      * in every run of the Stage, controller automatically called.
      */
-    public abstract function controller(Bot $bot);
+    public abstract function controller();
 
     public function __construct()
     {

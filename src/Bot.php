@@ -16,25 +16,35 @@ use Bip\App\Config;
 use Bip\App\RouteRule;
 use Bip\App\Stage;
 use Bip\Database\Database;
-use Bip\Telegram\Telegram;
 use Bip\Telegram\Update;
 use Exception;
 
 class Bot
 {
+    private static $bot = null;
     private object $stage;
     private Database $database;
     private string $newStage;
     private string $toBeRoutedNode;
     private string $routedNode;
 
-
+    /**
+     * initialize bot.
+     * @param Stage $stage
+     * @return Bot|null
+     */
+    public static function init(Stage $stage): ?Bot
+    {
+        if(empty(self::$bot))
+            self::$bot = new Bot($stage);
+        return self::$bot;
+    }
     /**
      * Bot constructor.
      * @param Stage $stage
      * @throws Exception
      */
-    public function __construct(Stage $stage)
+    private function __construct(Stage $stage)
     {
         $this->stage = $stage;
         $this->database = Config::get('database');
@@ -55,52 +65,52 @@ class Bot
 
 
     /**
-     * set a property to be add in stage.
+     * set a property to be added in stage.
      * @param string $name
      * @param mixed $value
      */
-    public function setProperty(string $name, mixed $value)
+    public static function setProperty(string $name, mixed $value)
     {
-        $this->stage->{$name} = $value;
+        self::$bot->stage->{$name} = $value;
     }
 
     /**
      * unset a property.
      * @param string $name
      */
-    public function unsetProperty(string $name)
+    public static function unsetProperty(string $name)
     {
-        unset($this->stage->{$name});
+        unset(self::$bot->stage->{$name});
     }
 
     /**
      * run the bot.
      */
-    public function run()
+    public static function run()
     {
         // call the stage controller
-        $this->stage->controller($this);
+        self::$bot->stage->controller();
 
         // call the reserved node
-        if(!empty($this->routedNode))
-            $this->stage->{$this->routedNode . 'Node'}();
-        elseif(!empty($this->stage->_node))
-            $this->stage->{$this->stage->_node . 'Node'}();
+        if(!empty(self::$bot->routedNode))
+            self::$bot->stage->{self::$bot->routedNode . 'Node'}();
+        elseif(!empty(self::$bot->stage->_node))
+            self::$bot->stage->{self::$bot->stage->_node . 'Node'}();
 
         // change stage if $newStage be isn't empty.
-        if (!empty($this->newStage)) {
-            $newStage = $this->newStage; //method call conflict.
-            $this->stage = new $newStage();
+        if (!empty(self::$bot->newStage)) {
+            $newStage = self::$bot->newStage; //method call conflict.
+            self::$bot->stage = new $newStage();
             unset($newStage);
         }
 
         // remove all non-primitive data types
-        foreach ($this->stage as $propertyKey => $propertyVal)
+        foreach (self::$bot->stage as $propertyKey => $propertyVal)
             if (is_object($propertyVal))
-                unset($this->stage->{$propertyKey});
+                unset(self::$bot->stage->{$propertyKey});
 
         // update stage in database
-        $this->database->updateStage(Update::get()->message->chat->id, $this->stage);
+        self::$bot->database->updateStage(Update::get()->message->chat->id, self::$bot->stage);
 
     }
 
@@ -109,23 +119,23 @@ class Bot
      * @param string $nodeName
      * @throws Exception
      */
-    public function bindNode(string $nodeName)
+    public static function bindNode(string $nodeName)
     {
-        if(!method_exists($this->stage,$nodeName.'Node')) {
-            $stageName = get_class($this->stage);
+        if(!method_exists(self::$bot->stage,$nodeName.'Node')) {
+            $stageName = get_class(self::$bot->stage);
             throw new Exception("Bind Error : [$nodeName"."Node] method not found in [$stageName] stage");
         }
 
-        $this->stage->_node = $nodeName;
+        self::$bot->stage->_node = $nodeName;
     }
 
     /**
      * changes the stage. (change will be applied when controller is finished in the current stage)
      * @param string $newStage
      */
-    public function changeStage(string $newStage)
+    public static function changeStage(string $newStage)
     {
-        $this->newStage = $newStage;
+        self::$bot->newStage = $newStage;
     }
 
     /**
@@ -134,32 +144,32 @@ class Bot
      * @return RouteRule
      * @throws Exception
      */
-    public function route(string $nodeName): RouteRule {
-        if (!method_exists($this->stage, $nodeName . 'Node')) {
-            $stageName = get_class($this->stage);
+    public static function route(string $nodeName): RouteRule {
+        if (!method_exists(self::$bot->stage, $nodeName . 'Node')) {
+            $stageName = get_class(self::$bot->stage);
             throw new Exception("Route Error : [$nodeName" . "Node] method not found in [$stageName] stage");
         }
 
-        $this->toBeRoutedNode = $nodeName;
-        return new RouteRule($this);
+        self::$bot->toBeRoutedNode = $nodeName;
+        return new RouteRule();
     }
 
     /**
      * get to be routed node. (last route $nodeName)
      * @return string
      */
-    public function getToBeRoutedNode(): string
+    public static function getToBeRoutedNode(): string
     {
-        return $this->toBeRoutedNode;
+        return self::$bot->toBeRoutedNode;
     }
 
     /**
      * set routed node.
      * @param string $routedNode
      */
-    public function setRoutedNode(string $routedNode): void
+    public static function setRoutedNode(string $routedNode): void
     {
-        $this->routedNode = $routedNode;
+        self::$bot->routedNode = $routedNode;
     }
-    
+
 }
