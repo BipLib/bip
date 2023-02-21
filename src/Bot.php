@@ -92,9 +92,9 @@ class Bot
 
         // call the reserved node
         if(!empty(self::$bot->routedNode))
-            self::$bot->stage->{self::$bot->routedNode . 'Node'}();
+            self::$bot->stage->{self::$bot->routedNode }();
         elseif(!empty(self::$bot->stage->_node))
-            self::$bot->stage->{self::$bot->stage->_node . 'Node'}();
+            self::$bot->stage->{self::$bot->stage->_node }();
 
         // change stage if $newStage be isn't empty.
         if (!empty(self::$bot->newStage)) {
@@ -120,9 +120,9 @@ class Bot
      */
     public static function bindNode(string $nodeName)
     {
-        if(!method_exists(self::$bot->stage,$nodeName.'Node')) {
+        if(!method_exists(self::$bot->stage,$nodeName)) {
             $stageName = get_class(self::$bot->stage);
-            throw new Exception("Bind Error : [$nodeName"."Node] method not found in [$stageName] stage");
+            throw new Exception("Bind Error : [$nodeName] Node not found in [$stageName] stage");
         }
 
         self::$bot->stage->_node = $nodeName;
@@ -144,9 +144,9 @@ class Bot
      * @throws Exception
      */
     public static function route(string $nodeName): RouteRule {
-        if (!method_exists(self::$bot->stage, $nodeName . 'Node')) {
+        if (!method_exists(self::$bot->stage, $nodeName )) {
             $stageName = get_class(self::$bot->stage);
-            throw new Exception("Route Error : [$nodeName" . "Node] method not found in [$stageName] stage");
+            throw new Exception("Route Error : [$nodeName] Node not found in [$stageName] stage");
         }
 
         self::$bot->toBeRoutedNode = $nodeName;
