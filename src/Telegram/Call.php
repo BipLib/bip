@@ -90,7 +90,7 @@ use Bip\App\Config;
  *
  */
 
-class Telegram
+class Call
 {
     /**
      * Call telegram methods.
@@ -98,7 +98,7 @@ class Telegram
      * @param array $params
      * @return object
      */
-    public static function call(string $method, array $params = []): object
+    public static function api(string $method, array $params = []): object
     {
         $ch = curl_init('https://api.telegram.org/bot' . Config::get('token') . '/' . $method);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -108,7 +108,7 @@ class Telegram
 
     public static function __callStatic(string $name, array $arguments)
     {
-        return self::call($name, $arguments);
+        return self::api($name, $arguments);
     }
 
 
