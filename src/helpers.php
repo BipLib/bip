@@ -1,5 +1,6 @@
 <?php
 // main functions
+
 if (! function_exists('msg')) {
     /**
      * short function for sending message.
@@ -8,20 +9,31 @@ if (! function_exists('msg')) {
      */
     function msg(string $text) : void
         {
-            \Bip\Telegram\Telegram::sendMessage(
+            \Bip\Telegram\Call::sendMessage(
                 chat_id : \Bip\Telegram\Webhook::getObject()->message->chat->id,
                 text : $text,
             );
         }
 }
-if (! function_exists('update')){
+if (! function_exists('updateObj')){
     /**
      * get update object.
      * @return object
      */
-    function update(): object
+    function updateObj(): object
     {
         return \Bip\Telegram\Webhook::getObject();
+    }
+
+}
+if (! function_exists('update')){
+    /**
+     * get update.
+     * @return object
+     */
+    function update(): object
+    {
+        return \Bip\Telegram\Webhook::get();
     }
 
 }
@@ -56,3 +68,16 @@ if (! function_exists('route')) {
         return \Bip\Bot::route($node);
     }
 }
+if (! function_exists('dd')){
+    /**
+     * Debug and die.
+     * @param mixed $var
+     * @return void
+     */
+   function dd(mixed $var): void
+    {
+        msg(var_export($var, true));
+        die();
+    }
+}
+
