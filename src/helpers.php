@@ -9,7 +9,7 @@ if (! function_exists('msg')) {
     function msg(string $text) : void
         {
             \Bip\Telegram\Telegram::sendMessage(
-                chat_id : \Bip\Telegram\Update::get()->message->chat->id,
+                chat_id : \Bip\Telegram\Webhook::getObject()->message->chat->id,
                 text : $text,
             );
         }
@@ -21,7 +21,7 @@ if (! function_exists('update')){
      */
     function update(): object
     {
-        return \Bip\Telegram\Update::get();
+        return \Bip\Telegram\Webhook::getObject();
     }
 
 }

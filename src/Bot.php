@@ -16,7 +16,7 @@ use Bip\App\Config;
 use Bip\App\RouteRule;
 use Bip\App\Stage;
 use Bip\Database\Database;
-use Bip\Telegram\Update;
+use Bip\Telegram\Webhook;
 use Exception;
 
 class Bot
@@ -50,9 +50,9 @@ class Bot
         $this->database = Config::get('database');
 
 
-        if (!$this->database->insertUser(Update::get()->message->chat->id, $this->stage)) {
+        if (!$this->database->insertUser(Webhook::getObject()->message->chat->id, $this->stage)) {
             //convert stdClass object to Stage object
-            $stageStdClass = $this->database->getStage(Update::get()->message->chat->id);
+            $stageStdClass = $this->database->getStage(Webhook::getObject()->message->chat->id);
             $call = $stageStdClass->_call;
             $this->stage = new $call();
             foreach ($stageStdClass as $propertyName => $propertyValue)
@@ -109,7 +109,7 @@ class Bot
                 unset(self::$bot->stage->{$propertyKey});
 
         // update stage in database
-        self::$bot->database->updateStage(Update::get()->message->chat->id, self::$bot->stage);
+        self::$bot->database->updateStage(Webhook::getObject()->message->chat->id, self::$bot->stage);
 
     }
 

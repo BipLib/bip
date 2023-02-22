@@ -12,15 +12,16 @@ namespace Bip\Telegram;
 
 
 use Bip\Telegram\Update\Message;
+use Bip\Telegram\Update\Update;
 
 /**
  * Class Update
  * @package Bip\Telegram
  * @property Message $message
  */
-class Update
+class Webhook
 {
-    private static Update $update;
+    private static Webhook $update;
     private object $object;
 
     /**
@@ -32,12 +33,16 @@ class Update
 
     /**
      * get update instance.
-     * @return Update
+     * @return Webhook
      */
-    public static function get(): object
+    public static function getObject(): object
     {
         self::init();
         return self::$update->object;
+    }
+    public static function get(): Update
+    {
+       return new Update(self::getObject());
     }
 
     /**
@@ -46,7 +51,7 @@ class Update
     public static function init(): void
     {
         if(empty(self::$update)) {
-            self::$update = new Update();
+            self::$update = new Webhook();
             self::$update->object = json_decode(file_get_contents('php://input'));
         }
     }
