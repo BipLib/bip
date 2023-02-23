@@ -1,6 +1,6 @@
 {
     "name": "biplib/bip",
-    "description":"Create Stage Base & Fully Object-Oriented Webhook Telegram Bots With PHP Bip Library.",
+    "description":"Create Stage Base & Powerful Webhook Telegram Bots With PHP Bip Library.",
     "license": "MIT",
     "autoload": {
       "files": ["src/helpers.php"],
