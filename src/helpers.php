@@ -12,6 +12,7 @@ if (! function_exists('msg')) {
             \Bip\Telegram\Call::sendMessage(
                 chat_id : \Bip\Telegram\Webhook::getObject()->message->chat->id,
                 text : $text,
+                parse_mode : 'MARKDOWN'
             );
         }
 }
