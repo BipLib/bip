@@ -1,79 +1,31 @@
 # PHP Bip Library
-Create Stage Base & Fully Object-Oriented Webhook Telegram Bots With PHP Bip Library.
+Create Stage Base & Powerful Webhook Telegram Bots With PHP Bip Library.
+ 
 
-Installation (early access)
+Installation (v0.4.0 early access)
 ------------
 It is recommended to use [composer](https://getcomposer.org) to install the Bip :
 
 ```bash
 composer require biplib/bip
 ```
-A simple bot that takes first and last names and then prints both.
-+ Stage :
-```php
-// StartStage.php
-...
-class StartStage extends Stage{
-    #Manually assigned (non-primitive types)
-    public Telegram $tel;
-    public Bot $bot;
+### Get Started With Simple NotePad Bot
+1. After installing Bip Library, Create a new telegram bot with [BotFather](https://t.me/botfather) and get your bot token.
+2. go to ```bots/NotePad/config.php``` and set your bot token and yours chat_id (you can get your chat_id with [userinfobot](https://t.me/userinfobot)).
+3. for connect your bot to telegram webhook, you need to run following url in your browser:
 
-    #Automatically reassigned (primitive types)
-    public string $name ;
-    public string $lastName;
+   ```https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook?url=<YOUR_SERVER_URL>/bip/bots/NotePad/index.php```  
+4. Now you can start your bot and enjoy it.
 
-    public function controller(Bot $bot){
-        $this->tel = $bot->getTelegram();
-        $this->bot = $bot;
-        
-        $bot->route('getName')->when(Update::asObject()->message->text == '/getName');
 
-    }
-    public function getNameNode(){
-        $this->tel->msg("What is your name ?");
-        $this->bot->bindNode('getLastName');
-    }
-    public function getLastNameNode(){
-        $this->name = Update::asObject()->message->text;
-        $this->tel->msg("What is your lastname ?");
-        $this->bot->bindNode('end');
+### Make your own bots with Bip Library
+1. Same as NotePad Bot, Create a new directory in ```bots``` directory and name it as you want.
+2. You need to create a new Stage ```(extends Bip\App\Stage)``` and set it as your bot's first stage by Calling ```Bot::init(new YourStage())``` in ```index.php```.
+3. By calling```Bot::run()``` method, you can run your bot.
+4. Connect your bot to telegram webhook.
+5. create a public ``` controller()``` method in your stage and set your bot's routes to ```Nodes``` in this method.
+6. create your Nodes and set your bot's logic in them.
+7. Now you can start your bot and enjoy it.
+  
 
-    }
-    public function endNode(){
-        $this->lastName = Update::asObject()->message->text;
-        $this->tel->msg(<<<MSG
-        Authentication Successfully Done !
-        Your name is $this->name and your lastname is $this->lastName
-        MSG);
-        $this->bot->changeStage('Stages\MenuStage');
-        
-        // saving name and lastname in database
-    }
 
-}
-```
-+ Global Config Factory :
-```php
-//config.php
-...
-Config::init([               /* creating config with name "bot"   */
-    'token'     => 'your-api-key',
-    'admins'    => [admin-id,...],
-    'database'  => new LazyJsonDatabase('database.json'),  /* json file-based database for test  */
-
-    /* more config items  ...*/
-    
-]);
-```
-+ Run :
-```php
-//run.php
-...
-require __DIR__.'/vendor/autoload.php';
-...
-$bot = new Bot(
-    new StartStage(),                       /* start stage (StartStage.php)       */
-    new Telegram(),                         /* using telegram driver in stage     */
-);
-$bot->run();
-```
