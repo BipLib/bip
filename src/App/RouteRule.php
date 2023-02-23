@@ -12,6 +12,7 @@ namespace Bip\App;
 
 
 use Bip\Bot;
+use Bip\Telegram\Webhook;
 
 class RouteRule
 {
@@ -31,6 +32,11 @@ class RouteRule
     public function when(bool $condition): RouteRule
     {
         $this->result = $this->result && $condition;
+        return $this;
+    }
+    public function whenMessageTextIs(string $text): RouteRule
+    {
+        $this->result = $this->result && Webhook::getObject()->message->text == $text;
         return $this;
     }
 
