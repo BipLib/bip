@@ -28,6 +28,7 @@ class StartStage extends Stage{
         You can contribute to this project on [github](https://github.com/biplib/bip).
         MSG;
 
+    # Controller Controls The Logic Of The Stage. It Is Called Automatically.
     public function controller(){
         route('start')->whenMessageTextIs('/start');
         route('add')->whenMessageTextIs('/add');
@@ -36,6 +37,8 @@ class StartStage extends Stage{
         route('clear')->whenMessageTextIs('/clear');
         route('about')->whenMessageTextIs('/about');
     }
+
+    # Start Node.
     public function start(){
         Call::setMyCommands(
             commands: [
@@ -57,12 +60,19 @@ class StartStage extends Stage{
             MSG;
         msg($message);
     }
+    # End Start Node.
+
+    # Default Node.
     public function default(){
         msg('Please Select One Of The Menu Commands.');
     }
+    # End Default Node.
+
+    # About Node.
     public function about(){
         msg($this->about);
     }
+    # End About Node.
 
     # Add Note To Pad Nodes.
     public function add(){
