@@ -32,7 +32,7 @@ class Config
     {
         if(self::$config == null)
             self::$config = new Config();
-        
+
         foreach ($config as $cfgKey => $cfgVal)
             self::$config->configArr[strtolower($cfgKey)] = $cfgVal;
     }
@@ -44,8 +44,8 @@ class Config
      */
     public static function get(string $configKey) : mixed
     {
-        Config::validate([$configKey]);
         $configKey = strtolower($configKey);
+        Config::validate([$configKey]);
         if(isset(self::$config->configArr[$configKey]))
             return self::$config->configArr[$configKey];
         else
