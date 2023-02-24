@@ -18,20 +18,6 @@ class Config
     private static $config = null;
     private array $configArr = [];
 
-    /**
-     * initialize the config. if you want to add a config, use Config::add() instead.
-     * @param array $config the config array
-     * @return Config
-     */
-    public static function init(array $config) : Config
-    {
-        if(self::$config == null) {
-            self::$config = new Config();
-            Config::add($config);
-        }
-
-        return self::$config;
-    }
 
     /**
      * Config constructor. if you want to create a new config, use Config::init() instead.
@@ -45,8 +31,8 @@ class Config
     public static function add(array $config) : void
     {
         if(self::$config == null)
-            Config::init($config);
-
+            self::$config = new Config();
+        
         foreach ($config as $cfgKey => $cfgVal)
             self::$config->configArr[strtolower($cfgKey)] = $cfgVal;
     }
@@ -79,6 +65,15 @@ class Config
                 throw new Exception('Config Not Found : failed to get key ['.$configKey.'] in ['.self::$config->configName.'] config');
 
         }
+    }
+    /**
+     * check if a config key is set
+     * @param string $configKey the key of the config
+     * @return bool
+     */
+    public static function isSet(string $configKey) : bool
+    {
+        return isset(self::$config->configArr[$configKey]);
     }
 
 }
