@@ -1,8 +1,8 @@
-# PHP Bip Library
+# PHP Bip Library 
 Create Stage Base & Powerful Webhook Telegram Bots With PHP Bip Library.
  
 
-Installation (v0.4.0 early access)
+Installation v0.5.x
 ------------
 It is recommended to use [composer](https://getcomposer.org) to install the Bip :
 
