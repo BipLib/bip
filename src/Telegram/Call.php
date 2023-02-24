@@ -87,7 +87,6 @@ use Bip\App\Config;
  * @method static object getWebhookInfo() Use this method to get current webhook status. Requires no parameters. On success, returns a WebhookInfo object. If the bot is using getUpdates, will return an object with the url field empty.
  * @method static object logOut() Use this method to log out from the cloud Bot API server before launching the bot locally. You must log out the bot before running it locally, otherwise there is no guarantee that the bot will receive updates. After a successful call, you can immediately log in on a local server, but will not be able to log in back to the cloud Bot API server for 10 minutes. Returns True on success. Requires no parameters.
  * @method static object close() Use this method to close the bot instance before moving it from one local server to another. You need to delete the webhook before calling this method to ensure that the bot isn't launched again after server restart. The method will return error 429 in the first 10 minutes after the bot is launched. Returns True on success. Requires no parameters.
- *
  */
 
 class Call
@@ -102,6 +101,11 @@ class Call
     {
         $ch = curl_init('https://api.telegram.org/bot' . Config::get('token') . '/' . $method);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        foreach ($params as $paramKey => $paramValue)
+            if(is_array($paramValue))
+                $params[$paramKey] = json_encode($paramValue);
+
         curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
         return json_decode(curl_exec($ch));
     }
