@@ -12,24 +12,18 @@ namespace Bots\NotePad\Stages;
 
 
 use Bip\App\Stage;
+use Bip\Telegram\Call;
 use Bip\Telegram\Webhook;
 
 
 class StartStage extends Stage{
     # Public Properties Are Saved In Database And Restored Automatically.
     public array $pad = [];
+
     # Private Properties Are Not Saved In Database. Only Be Used In This Stage.
-    private string $helpMessage = <<<MSG
-        What Do You Want To Do ?
-        /add    : add a note to your pad.
-        /list   : list your notes.
-        /delete : delete a note from your pad.
-        /clear  : clear your pad.
-        /about  : about this bot.
-        MSG;
     private string $about = <<<MSG
-        This bot is created by early access Bip Library [v0.4.0]. And maybe doesn't work properly on other versions.
-        Highly recommended to use Bip Library [v0.4.0]. to run this bot.
+        This bot is created by early access Bip Library [v0.5.x]. And maybe doesn't work properly on other versions.
+        Highly recommended to use Bip Library [v0.5.x]. to run this bot.
         in the new version of Bip we will update this bot for compatibility with new version.
         You can contribute to this project on [github](https://github.com/biplib/bip).
         MSG;
@@ -40,39 +34,53 @@ class StartStage extends Stage{
         route('list')->whenMessageTextIs('/list');
         route('delete')->whenMessageTextIs('/delete');
         route('clear')->whenMessageTextIs('/clear');
-        route('help')->whenMessageTextIs('/help');
         route('about')->whenMessageTextIs('/about');
-
     }
     public function start(){
+        Call::setMyCommands(
+            commands: [
+                ['command' => '/start', 'description' => 'Restart The Bot'],
+                ['command' => '/add', 'description' => 'Add A Note To Your Pad'],
+                ['command' => '/list', 'description' => 'List Your Notes'],
+                ['command' => '/delete', 'description' => 'Delete A Note From Your Pad'],
+                ['command' => '/clear', 'description' => 'Clear Your Pad'],
+                ['command' => '/about', 'description' => 'About This Bot'],
+            ],
+            scope: [
+                'type' => 'chat',
+                'chat_id'=> Webhook::getObject()->message->chat->id
+            ]
+        );
         $message = <<<MSG
             Welcome To Bip Note Pad !!
             This is simple bot that can help you to save your notes.  
-            click /help to see available commands. 
             MSG;
         msg($message);
     }
-    public function help(){
-        msg($this->helpMessage);
+    public function default(){
+        msg('Please Select One Of The Menu Commands.');
     }
     public function about(){
         msg($this->about);
     }
+
+    # Add Note To Pad Nodes.
     public function add(){
         msg('Please Send Your Note To Be Added To Your Pad :');
         bindNode('addNote');
-
     }
     public function addNote(){
         if(isset(Webhook::getObject()->message->text)){
             $this->pad[] = Webhook::getObject()->message->text;
             msg('Your Note Has Been Added To Your Pad.');
-            msg($this->helpMessage);
-            bindNode('help');
         }else{
             msg('Only Text Is Allowed.');
         }
+        bindNode('default');
     }
+    # End Add Note To Pad Nodes.
+
+    # List Notes Nodes.
     public function list(){
         if(empty($this->pad)){
             msg('Your Pad Is Empty.');
@@ -81,9 +89,11 @@ class StartStage extends Stage{
                 msg('Note Number : '.($noteNumber+1)."\n".$noteValue);
             }
         }
-        msg($this->helpMessage);
-        bindNode('help');
+        bindNode('default');
     }
+    # End List Notes Nodes.
+
+    # Delete Note From Pad Nodes.
     public function delete(){
         msg('Please Send The Number Of Note You Want To Delete :');
         bindNode('deleteNote');
@@ -97,12 +107,14 @@ class StartStage extends Stage{
             }else{
                 msg('Note Number Is Not Valid.');
             }
-            msg($this->helpMessage);
-            bindNode('help');
         }else{
             msg('Only Number Is Allowed.');
         }
+        bindNode('default');
     }
+    # End Delete Note From Pad Nodes.
+
+    # Clear Pad Nodes.
     public function clear(){
        msg('Are You Sure You Want To Clear Your Pad ? (yes/no)');
        bindNode('clearPad');
@@ -116,12 +128,12 @@ class StartStage extends Stage{
             }else{
                 msg('Your Pad Is Not Cleared.');
             }
-            msg($this->helpMessage);
-            bindNode('help');
         }else{
             msg('Only Text Is Allowed.');
         }
+        bindNode('default');
     }
+    # End Clear Pad Nodes.
 
 
 }
