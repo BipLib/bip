@@ -11,89 +11,97 @@
 
 namespace Bip\Logger;
 
+use Bip\App\Config;
 
-use function array_shift;
-use function array_slice;
-use function count;
-use function date;
-use function end;
-use function explode;
-use function file_get_contents;
-use function file_put_contents;
-use function implode;
-use function is_file;
-use function preg_match;
-use function str_replace;
-use function print_r;
-
+/**
+ * Class Logger
+ * @package Bip\Logger
+ */
 class Logger
 {
-    private string $filePath;
-    private array $logArr = [];
-    private int $logId;
-    private int $maxLogCount = 100;
-    private const DATE_FORMAT = 'Y-m-d H:i:s';
+
+
+    private static $logger = null;
+    private int $logCount ;
+
+    private function __construct()
+    {
+    }
 
     /**
-     * Logger constructor.
-     *
-     * @param string $filePath
+     * add a log to the log file.
+     * @param mixed $logMessage
+     * @param string $logType
+     * @param string $logTag
+     * @return void
      */
-    public function __construct(string $filePath)
+    public static function add(mixed $logMessage,string $logType = '',string $logTag = 'default'): void
     {
-        $this->filePath = $filePath;
+        if(empty(self::$logger))
+            self::$logger = new Logger();
 
-        if (is_file($filePath)) {
-            $this->logArr = explode("\n\n", file_get_contents($filePath));
-            // remove first member if it is empty
-            if ($this->logArr[0] == '')
-                array_shift($this->logArr);
+        Config::add(['logMaxCount' => 100]);
+        self::$logger->logCount = Config::get('logMaxCount');
 
-            preg_match('#\[([0-9]+)]#', end($this->logArr), $out);
-            $this->logId = $out[1] ?? 0;
-        } else
-            $this->logId = 0;
+        //create logs directory if not exists and create log file if not exists
+        if(!is_dir(__DIR__."/../../logs"))
+            mkdir(__DIR__."/../../logs");
+        if(!file_exists(__DIR__."/../../logs/$logTag.json.log"))
+            file_put_contents(__DIR__."/../../logs/$logTag.json.log",'[]');
+
+
+        $log = json_decode(file_get_contents(__DIR__."/../../logs/$logTag.json.log"));
+
+        $log[] = [
+            'type' => $logType,
+            'time' => time(),
+            'message' => $logMessage,
+        ];
+
+        // remove first log if log count is more than logCount
+        if(count($log) > self::$logger->logCount)
+            array_shift($log);
+
+        file_put_contents(__DIR__."/../../logs/$logTag.json.log",json_encode($log,JSON_PRETTY_PRINT));
+
 
     }
 
     /**
-     * push a new log.
-     * @param mixed $message
-     * @param string $type
+     * get all logs from the log file.
+     * @param string $logTag
+     * @return array
      */
-    public function push(mixed $message, string $type = 'info')
+    public static function get(string $logTag = 'default'): array
     {
-        if(!is_string($message))
-            $message = print_r($message,true); //When the print_r return parameter is true, this function will return a string. Otherwise, the return value is true, So always will be return string.
+        if(empty(self::$logger))
+            self::$logger = new Logger();
 
+        if(!file_exists(__DIR__."/../../logs/$logTag..json.log"))
+            return [];
 
-    //All of \n will be replaced with \n\t so explode() and implode() with delimiter \n\n is safe
-        $message = '[' . ++$this->logId . '] [' . date(self::DATE_FORMAT) . '] [' . $type . "]\n\t" . str_replace("\n", "\n\t", $message);
-        $this->logArr [] = $message;
+        return json_decode(file_get_contents(__DIR__."/../../logs/$logTag.json.log"),true);
     }
-
-    /**
-     * set Maximum count for logs .
-     * default is 100.
-     * @param int $maxLogCount
-     */
-    public function setMaxLogCount(int $maxLogCount): void
+    public static function clear(string $logTag = 'default'): void
     {
-        $this->maxLogCount = $maxLogCount;
+        if(empty(self::$logger))
+            self::$logger = new Logger();
+
+        if(!file_exists(__DIR__."/../../logs/$logTag.json.log"))
+            return;
+
+        file_put_contents(__DIR__."/../../logs/$logTag.json.log",'[]');
     }
-
     /**
-     * Logger destructor.
+     * change the log count.
+     * @param int $logCount
      */
-    public function __destruct()
+    public static function changeLogCount(int $logCount): void
     {
-        if (count($this->logArr) > $this->maxLogCount)
-            $offset = count($this->logArr) - $this->maxLogCount;
-        else
-            $offset = 0;
+        if(empty(self::$logger))
+            self::$logger = new Logger();
 
-        file_put_contents($this->filePath, implode("\n\n", array_slice($this->logArr, $offset)));
-
+        self::$logger->logCount = $logCount;
     }
 
 }
