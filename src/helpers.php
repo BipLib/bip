@@ -41,6 +41,7 @@ if (! function_exists('update')){
 // Bot functions
 if (! function_exists('bindNode')) {
     /**
+     * bind node to current stage.
      * @param string $node
      * @return void
      */
@@ -49,6 +50,18 @@ if (! function_exists('bindNode')) {
         \Bip\Bot::bindNode($node);
     }
 }
+if (! function_exists('closeNode')){
+    /**
+     * close the current node.(it will bind to `default` node, `default` node if not exists, it will be ignored)
+     * @return void
+     */
+    function closeNode(): void
+    {
+        \Bip\Bot::closeNode();
+    }
+
+}
+
 if (! function_exists('changeStage')) {
     /**
      * @param string $newStage

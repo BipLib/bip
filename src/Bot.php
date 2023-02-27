@@ -131,6 +131,14 @@ class Bot
 
         self::$bot->stage->_node = $nodeName;
     }
+    /**
+     * close the current node.(it will bind to `default` node, `default` node if not exists, it will be ignored)
+     */
+    public static function closeNode(): void
+    {
+        self::$bot->stage->_node = '';
+    }
+
 
     /**
      * changes the stage. (change will be applied when controller is finished in the current stage)
