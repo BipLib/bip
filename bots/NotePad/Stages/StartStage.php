@@ -22,8 +22,8 @@ class StartStage extends Stage{
 
     # Private Properties Are Not Saved In Database. Only Be Used In This Stage.
     private string $about = <<<MSG
-        This bot is created by early access Bip Library [v0.5.x]. And maybe doesn't work properly on other versions.
-        Highly recommended to use Bip Library [v0.5.x]. to run this bot.
+        This bot is created by early access Bip Library [v0.6.x]. And maybe doesn't work properly on other versions.
+        Highly recommended to use Bip Library [v0.6.x]. to run this bot.
         in the new version of Bip we will update this bot for compatibility with new version.
         You can contribute to this project on [github](https://github.com/biplib/bip).
         MSG;
@@ -36,7 +36,6 @@ class StartStage extends Stage{
         route('delete')->onMessageText('/delete');
         route('clear')->onMessageText('/clear');
         route('about')->onMessageText('/about');
-        route('default');
     }
 
     # Start Node.
@@ -87,7 +86,7 @@ class StartStage extends Stage{
         }else{
             msg('Only Text Is Allowed.');
         }
-        bindNode('default');
+        closeNode();
     }
     # End Add Note To Pad Nodes.
 
@@ -100,7 +99,7 @@ class StartStage extends Stage{
                 msg('Note Number : '.($noteNumber+1)."\n".$noteValue);
             }
         }
-        bindNode('default');
+        closeNode();
     }
     # End List Notes Nodes.
 
@@ -121,7 +120,7 @@ class StartStage extends Stage{
         }else{
             msg('Only Number Is Allowed.');
         }
-        bindNode('default');
+        closeNode();
     }
     # End Delete Note From Pad Nodes.
 
@@ -142,7 +141,7 @@ class StartStage extends Stage{
         }else{
             msg('Only Text Is Allowed.');
         }
-        bindNode('default');
+        closeNode();
     }
     # End Clear Pad Nodes.
 
