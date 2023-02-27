@@ -51,11 +51,12 @@ class Bot
 
 
         if (!$this->database->insertUser(Webhook::getObject()->message->chat->id, $this->stage)) {
+
             //convert stdClass object to Stage object
-            $stageStdClass = $this->database->getStage(Webhook::getObject()->message->chat->id);
-            $call = $stageStdClass->_call;
+            $stageProperties = $this->database->getStageProperties(Webhook::getObject()->message->chat->id);
+            $call = $stageProperties['_call'];
             $this->stage = new $call();
-            foreach ($stageStdClass as $propertyName => $propertyValue)
+            foreach ($stageProperties as $propertyName => $propertyValue)
                 $this->stage->{$propertyName} = $propertyValue;
 
         }
@@ -95,6 +96,9 @@ class Bot
             self::$bot->stage->{self::$bot->routedNode }();
         elseif(!empty(self::$bot->stage->_node))
             self::$bot->stage->{self::$bot->stage->_node }();
+        elseif (empty(self::$bot->stage->_node) && method_exists(self::$bot->stage, 'default'))
+            self::$bot->stage->default();
+
 
         // change stage if $newStage be isn't empty.
         if (!empty(self::$bot->newStage)) {
