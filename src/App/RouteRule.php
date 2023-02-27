@@ -34,7 +34,7 @@ class RouteRule
         $this->result = $this->result && $condition;
         return $this;
     }
-    public function whenMessageTextIs(string $text): RouteRule
+    public function onMessageText(string $text): RouteRule
     {
         $this->result = $this->result && Webhook::getObject()->message->text == $text;
         return $this;

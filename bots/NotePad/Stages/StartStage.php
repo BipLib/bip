@@ -30,12 +30,13 @@ class StartStage extends Stage{
 
     # Controller Controls The Logic Of The Stage. It Is Called Automatically.
     public function controller(){
-        route('start')->whenMessageTextIs('/start');
-        route('add')->whenMessageTextIs('/add');
-        route('list')->whenMessageTextIs('/list');
-        route('delete')->whenMessageTextIs('/delete');
-        route('clear')->whenMessageTextIs('/clear');
-        route('about')->whenMessageTextIs('/about');
+        route('start')->onMessageText('/start');
+        route('add')->onMessageText('/add');
+        route('list')->onMessageText('/list');
+        route('delete')->onMessageText('/delete');
+        route('clear')->onMessageText('/clear');
+        route('about')->onMessageText('/about');
+        route('default');
     }
 
     # Start Node.
