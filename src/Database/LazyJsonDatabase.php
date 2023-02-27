@@ -60,12 +60,11 @@ class LazyJsonDatabase implements Database
         return true;
     }
 
-    public function getStage(int $chat_id): object|bool
+    public function getStageProperties(int $chat_id): array|bool
     {
         foreach ($this->json as $row)
             if ($row['chat_id'] == $chat_id)
-                return (object) $row['stage'] ?? new StdClass;
-
+                return $row['stage'] ?? [];
         return false;
     }
 
