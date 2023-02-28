@@ -59,6 +59,7 @@ class StartStage extends Stage{
             This is simple bot that can help you to save your notes.  
             MSG;
         msg($message);
+        closeNode();
     }
     # End Start Node.
 
@@ -71,6 +72,7 @@ class StartStage extends Stage{
     # About Node.
     public function about(){
         msg($this->about);
+        closeNode();
     }
     # End About Node.
 
@@ -144,6 +146,5 @@ class StartStage extends Stage{
         closeNode();
     }
     # End Clear Pad Nodes.
-
 
 }
