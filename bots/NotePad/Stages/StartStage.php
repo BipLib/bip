@@ -55,7 +55,7 @@ class StartStage extends Stage{
             ]
         );
         $message = <<<MSG
-            Welcome To Bip Note Pad !!
+            Welcome to Bip NotePad !!
             This is simple bot that can help you to save your notes.  
             MSG;
         msg($message);
@@ -65,7 +65,7 @@ class StartStage extends Stage{
 
     # Default Node.
     public function default(){
-        msg('Please Select One Of The Menu Commands.');
+        msg('Please select one of the menu commands.');
     }
     # End Default Node.
 
@@ -78,27 +78,27 @@ class StartStage extends Stage{
 
     # Add Note To Pad Nodes.
     public function add(){
-        msg('Please Send Your Note To Be Added To Your Pad :');
+        msg('Please send your note to be added to your pad :');
         bindNode('addNote');
     }
     public function addNote(){
         if(isset(Webhook::getObject()->message->text)){
             $this->pad[] = Webhook::getObject()->message->text;
-            msg('Your Note Has Been Added To Your Pad.');
+            msg('Note added successfully.');
+            closeNode();
         }else{
-            msg('Only Text Is Allowed.');
+            msg('You can only add text notes, Please send text note.');
         }
-        closeNode();
     }
     # End Add Note To Pad Nodes.
 
     # List Notes Nodes.
     public function list(){
         if(empty($this->pad)){
-            msg('Your Pad Is Empty.');
+            msg('Your pad is empty.');
         }else{
             foreach ($this->pad as $noteNumber => $noteValue ){
-                msg('Note Number : '.($noteNumber+1)."\n".$noteValue);
+                msg('Note number : '.($noteNumber+1)."\n".$noteValue);
             }
         }
         closeNode();
@@ -107,43 +107,56 @@ class StartStage extends Stage{
 
     # Delete Note From Pad Nodes.
     public function delete(){
-        msg('Please Send The Number Of Note You Want To Delete :');
-        bindNode('deleteNote');
+        if (empty($this->pad)){
+            msg('Your pad is empty.');
+            closeNode();
+        }else{
+            msg('Please send the number of the note you want to delete from your pad :');
+            bindNode('deleteNote');
+        }
+
+
     }
     public function deleteNote(){
         if(isset(Webhook::getObject()->message->text) && is_numeric((int)Webhook::getObject()->message->text)) {
             $noteNumber = (int) Webhook::getObject()->message->text;
             if(isset($this->pad[$noteNumber-1])){
                 unset($this->pad[$noteNumber-1]);
-                msg('Your Note Has Been Deleted From Your Pad.');
+                msg('Note deleted successfully.');
+                closeNode();
             }else{
-                msg('Note Number Is Not Valid.');
+                msg('Note number is not valid, Please send a valid note number.');
             }
         }else{
-            msg('Only Number Is Allowed.');
+            msg('Only numbers are allowed, Please send a number.');
+
         }
-        closeNode();
     }
     # End Delete Note From Pad Nodes.
 
     # Clear Pad Nodes.
     public function clear(){
-       msg('Are You Sure You Want To Clear Your Pad ? (yes/no)');
-       bindNode('clearPad');
+        if(empty($this->pad)){
+            msg('Your pad is empty.');
+            closeNode();
+        }else{
+            msg('Are you sure you want to clear your pad ? (yes/no)');
+            bindNode('clearPad');
+        }
     }
     public function clearPad(){
         if(isset(Webhook::getObject()->message->text)) {
             $answer = Webhook::getObject()->message->text;
             if($answer == 'yes'){
                 $this->pad = [];
-                msg('Your Pad Has Been Cleared.');
+                msg('Your pad has been cleared.');
             }else{
-                msg('Your Pad Is Not Cleared.');
+                msg('Your pad is not cleared.');
             }
+            closeNode();
         }else{
-            msg('Only Text Is Allowed.');
+            msg('Please send yes or no.');
         }
-        closeNode();
     }
     # End Clear Pad Nodes.
 
