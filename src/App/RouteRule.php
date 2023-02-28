@@ -34,16 +34,21 @@ class RouteRule
         $this->result = $this->result && $condition;
         return $this;
     }
+    /**
+     * route to node if Message->text is equal to $text.
+     * @param string $text
+     * @return $this
+     */
     public function onMessageText(string $text): RouteRule
     {
         $this->result = $this->result && Webhook::getObject()->message->text == $text;
         return $this;
     }
-
     public function __destruct()
     {
         if ($this->result) {
             Bot::setRoutedNode(Bot::getToBeRoutedNode());
+            Bot::bindNode(Bot::getToBeRoutedNode());
             self::$isRouted = true;
         }
 
