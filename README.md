@@ -6,7 +6,7 @@
 </p>
 
 ## Bip Library
-Bip is php library for creating powerful and stage base telegram bots applications, easy to develop with amazing features :
+Bip is php library for creating powerful and stage base telegram bot applications, easy to develop with amazing features :
 
 - Lightwight And Using Webhook
 - Everything in Stages and Nodes
