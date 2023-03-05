@@ -29,7 +29,7 @@ abstract class Stage
      * in every run of the Stage, controller automatically called.
      */
     public abstract function controller();
-
+    public function default(){}
     public function __construct()
     {
         $this->_call = get_class($this);

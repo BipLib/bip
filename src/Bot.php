@@ -96,7 +96,7 @@ class Bot
             self::$bot->stage->{self::$bot->routedNode }();
         elseif(!empty(self::$bot->stage->_node))
             self::$bot->stage->{self::$bot->stage->_node }();
-        elseif (empty(self::$bot->stage->_node) && method_exists(self::$bot->stage, 'default'))
+        elseif (empty(self::$bot->stage->_node) or self::$bot->stage->_node == 'default')
             self::$bot->stage->default();
 
 
@@ -142,11 +142,11 @@ class Bot
 
     /**
      * changes the stage. (change will be applied when controller is finished in the current stage)
-     * @param string $newStage
+     * @param Stage $newStage
      */
-    public static function changeStage(string $newStage)
+    public static function changeStage(Stage $newStage): void
     {
-        self::$bot->newStage = $newStage;
+        self::$bot->newStage = $newStage::class;
     }
 
     /**
