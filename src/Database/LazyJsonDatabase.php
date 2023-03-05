@@ -52,7 +52,7 @@ class LazyJsonDatabase implements Database
                 return false;
 
 
-        $this->json[]   = $arr = [
+        $this->json[]   = [
             'chat_id'   => $chat_id,
             'stage'     => $stage
         ];
