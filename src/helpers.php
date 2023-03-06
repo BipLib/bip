@@ -64,10 +64,10 @@ if (! function_exists('closeNode')){
 
 if (! function_exists('changeStage')) {
     /**
-     * @param string $newStage
+     * @param \Bip\App\Stage $newStage
      * @return void
      */
-    function changeStage(string $newStage): void
+    function changeStage(\Bip\App\Stage $newStage): void
     {
         \Bip\Bot::changeStage($newStage);
     }
@@ -84,7 +84,7 @@ if (! function_exists('route')) {
 }
 if (! function_exists('dd')){
     /**
-     * Debug and die.
+     * Dump and die.
      * @param mixed $var
      * @return void
      */
@@ -92,6 +92,17 @@ if (! function_exists('dd')){
     {
         msg(var_export($var, true));
         die();
+    }
+}
+
+if (! function_exists('peer')){
+    /**
+     * get peer chat id.
+     * @return int
+     */
+    function peer(): int
+    {
+        return \Bip\Telegram\Webhook::get()->message->chat->id;
     }
 }
 
