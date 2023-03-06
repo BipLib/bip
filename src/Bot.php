@@ -100,13 +100,6 @@ class Bot
             self::$bot->stage->default();
 
 
-        // change stage if $newStage be isn't empty.
-        if (!empty(self::$bot->newStage)) {
-            $newStage = self::$bot->newStage; //method call conflict.
-            self::$bot->stage = new $newStage();
-            unset($newStage);
-        }
-
         // remove all non-primitive data types
         foreach (self::$bot->stage as $propertyKey => $propertyVal)
             if (is_object($propertyVal))
@@ -115,6 +108,16 @@ class Bot
         // update stage in database
         self::$bot->database->updateStage(Webhook::getObject()->message->chat->id, self::$bot->stage);
 
+
+        // change stage if $newStage be isn't empty.
+        if (!empty(self::$bot->newStage)) {
+            $newStage = self::$bot->newStage;
+            self::$bot->stage = new $newStage();
+
+            // update again for changing stage
+            self::$bot->database->updateStage(Webhook::getObject()->message->chat->id, self::$bot->stage);
+
+        }
     }
 
     /**
