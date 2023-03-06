@@ -53,10 +53,10 @@ class Bot
         if (!$this->database->insertUser(Webhook::getObject()->message->chat->id, $this->stage)) {
 
             //convert stdClass object to Stage object
-            $stageProperties = $this->database->getStageProperties(Webhook::getObject()->message->chat->id);
-            $call = $stageProperties['_call'];
+            $user = $this->database->getUser(Webhook::getObject()->message->chat->id);
+            $call = $user['stage_call'];
             $this->stage = new $call();
-            foreach ($stageProperties as $propertyName => $propertyValue)
+            foreach ($user['stage'][$user['stage_call']] as $propertyName => $propertyValue)
                 $this->stage->{$propertyName} = $propertyValue;
 
         }

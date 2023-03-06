@@ -12,7 +12,6 @@ namespace Bip\Database;
 
 
 use Bip\App\Stage;
-use stdClass;
 
 /**
  * Class LazyJsonDatabase , [This database is slow. it is designed to help the development]
@@ -33,7 +32,7 @@ class LazyJsonDatabase implements Database
             $this->json = json_decode(file_get_contents($file),true); //caution : if an error occurs in json file (e.g syntax error) all data in database will be removed.
         else {
             file_put_contents($file, '[]');
-            $this->json = json_decode('[]'.true);
+            $this->json = [];
         }
     }
 
@@ -54,25 +53,26 @@ class LazyJsonDatabase implements Database
 
         $this->json[]   = [
             'chat_id'   => $chat_id,
-            'stage'     => $stage
+            'stage_call'=>$stage::class,
+            'stage'     => [$stage::class => $stage]
         ];
         $this->write();
         return true;
     }
 
-    public function getStageProperties(int $chat_id): array|bool
+    public function getUser(int $chat_id): array|bool
     {
         foreach ($this->json as $row)
             if ($row['chat_id'] == $chat_id)
-                return $row['stage'] ?? [];
+                return $row;
         return false;
     }
-
-    public function updateStage(int $chat_id,object $stage): bool
+    public function updateStage(int $chat_id,Stage $stage): bool
     {
         foreach ($this->json as $rowKey => $rowVal) {
             if ($rowVal['chat_id'] == $chat_id) {
-                $this->json[$rowKey]['stage'] = $stage;
+                $this->json[$rowKey]['stage'][$stage::class] = $stage;
+                $this->json[$rowKey]['stage_call'] = $stage::class;
                 $this->write();
                 return true;
             }
