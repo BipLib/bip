@@ -24,17 +24,17 @@ interface Database
     public function insertUser(int $chat_id, Stage $stage): bool;
 
     /**
-     * get the user stage properties. returns false when user does not found.
+     * get user. if the user does not exists, returns false, on success returns user data.
      * @param int $chat_id
      * @return array|bool
      */
-    public function getStageProperties(int $chat_id): array|bool;
+    public function getUser(int $chat_id): array|bool;
 
     /**
      * update the user stage . returns true on success and false when user does not found.
      * @param int $chat_id
-     * @param object $stage
+     * @param Stage $stage
      * @return bool
      */
-    public function updateStage(int $chat_id, object $stage): bool;
+    public function updateStage(int $chat_id, Stage $stage): bool;
 }
