@@ -41,7 +41,7 @@ class RouteRule
      */
     public function onMessageText(string $text): RouteRule
     {
-        $this->result = $this->result && Webhook::getObject()->message->text == $text;
+        $this->result = $this->result && (isset(Webhook::getObject()->message->text) && Webhook::getObject()->message->text == $text);
         return $this;
     }
     public function __destruct()
@@ -51,7 +51,6 @@ class RouteRule
             Bot::bindNode(Bot::getToBeRoutedNode());
             self::$isRouted = true;
         }
-
     }
 
 
