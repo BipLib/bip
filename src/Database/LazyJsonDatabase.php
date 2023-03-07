@@ -54,7 +54,7 @@ class LazyJsonDatabase implements Database
         $this->json[]   = [
             'chat_id'   => $chat_id,
             'stage_call'=>$stage::class,
-            'stage'     => [$stage::class => $stage]
+            'stages'     => [$stage::class => $stage]
         ];
         $this->write();
         return true;
@@ -71,7 +71,7 @@ class LazyJsonDatabase implements Database
     {
         foreach ($this->json as $rowKey => $rowVal) {
             if ($rowVal['chat_id'] == $chat_id) {
-                $this->json[$rowKey]['stage'][$stage::class] = $stage;
+                $this->json[$rowKey]['stages'][$stage::class] = $stage;
                 $this->json[$rowKey]['stage_call'] = $stage::class;
                 $this->write();
                 return true;
