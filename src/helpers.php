@@ -5,16 +5,36 @@ if (! function_exists('msg')) {
     /**
      * short function for sending message.
      * @param string $text
+     * @param array|null $reply_markup
      * @return void
      */
-    function msg(string $text) : void
+    function msg(string $text,array $reply_markup = null) : void
         {
             \Bip\Telegram\Call::sendMessage(
                 chat_id : \Bip\Telegram\Webhook::getObject()->message->chat->id,
                 text : $text,
-                parse_mode : 'MARKDOWN'
+                parse_mode : 'MARKDOWN',
+                reply_markup: $reply_markup
             );
         }
+}
+if(! function_exists('msgr')){
+    /**
+     * short function for sending message with reply.
+     * @param string $text
+     * @param array|null $reply_markup
+     * @return void
+     */
+    function msgr(string $text,array $reply_markup = null) : void
+    {
+        \Bip\Telegram\Call::sendMessage(
+            chat_id : \Bip\Telegram\Webhook::getObject()->message->chat->id,
+            text : $text,
+            parse_mode : 'MARKDOWN',
+            reply_to_message_id : \Bip\Telegram\Webhook::getObject()->message->message_id,
+            reply_markup: $reply_markup
+        );
+    }
 }
 if (! function_exists('updateObj')){
     /**
