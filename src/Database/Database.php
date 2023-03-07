@@ -24,7 +24,7 @@ interface Database
     public function insertUser(int $chat_id, Stage $stage): bool;
 
     /**
-     * get user. if the user does not exists, returns false, on success returns user data.
+     * get user. if the user does not exist, returns false, on success returns user data.
      * @param int $chat_id
      * @return array|bool
      */
