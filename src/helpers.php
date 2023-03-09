@@ -102,6 +102,17 @@ if (! function_exists('route')) {
         return \Bip\Bot::route($node);
     }
 }
+if(! function_exists('prevNode')){
+    /**
+     * get previous node.
+     * @return string
+     */
+    function prevNode(): string
+    {
+        return \Bip\Bot::getPreviousNode();
+    }
+
+}
 if (! function_exists('dd')){
     /**
      * Dump and die.
@@ -125,4 +136,23 @@ if (! function_exists('peer')){
         return \Bip\Telegram\Webhook::get()->message->chat->id;
     }
 }
+
+if (! function_exists('text')){
+
+    /**
+     * get message text.
+     * @return string
+     */
+    function text(): string
+    {
+        if(isset(\Bip\Telegram\Webhook::get()->message->text))
+            return \Bip\Telegram\Webhook::get()->message->text;
+        else
+            return '';
+    }
+
+}
+
+
+
 
