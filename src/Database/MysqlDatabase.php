@@ -14,33 +14,42 @@ use Bip\App\Stage;
 
 class MysqlDatabase implements Database
 {
+    private static $instance = null;
 
     private \PDO $pdo;
 
-    public function __construct(string $host, string $user, string $pass, string $db)
+
+    private function __construct(string $host, string $user, string $pass, string $db)
     {
         $this->pdo = new \PDO("mysql:host=$host;dbname=$db", $user, $pass);
 
     }
+    public static function init(string $host, string $user, string $pass, string $db): MysqlDatabase
+    {
+        if (self::$instance === null)
+            self::$instance = new MysqlDatabase($host, $user, $pass, $db);
+        return self::$instance;
+    }
+
     /**
      * @inheritDoc
      */
     public function insertUser(int $chat_id, Stage $stage): bool
     {
-        $this->pdo->exec("
+        self::$instance->pdo->exec("
 create table if not exists `state`(
 id         int auto_increment primary key,
-chat_id    int  not null comment 'user chat id',
+chat_id    bigint  not null comment 'user chat id',
 stage_call text null comment 'stage to be called',
 stages     json null comment 'array of user stage',
 constraint state_pk2
     unique (chat_id));
 ");
 
-        if ($this->getUser($chat_id) !== false)
+        if (self::$instance->getUser($chat_id) !== false)
             return false;
 
-        $stmt = $this->pdo->prepare("insert into state (chat_id,stage_call,stages) values (?,?,?)");
+        $stmt = self::$instance->pdo->prepare("insert into state (chat_id,stage_call,stages) values (?,?,?)");
         return $stmt->execute([$chat_id, $stage::class, json_encode([$stage::class => $stage])]);
 
     }
@@ -50,7 +59,7 @@ constraint state_pk2
      */
     public function updateStage(int $chat_id, Stage $stage): bool
     {
-        $user = $this->getUser($chat_id);
+        $user = self::$instance->getUser($chat_id);
         if ($user === false)
             return false;
         $user['stages'][$stage::class] = $stage;
@@ -62,12 +71,21 @@ constraint state_pk2
 
     public function getUser(int $chat_id): array|bool
     {
-        $stmt = $this->pdo->prepare("select * from state where chat_id = ?");
+        $stmt = self::$instance->pdo->prepare("select * from state where chat_id = ?");
         $stmt->execute([$chat_id]);
         $output =  $stmt->fetch(\PDO::FETCH_ASSOC);
         if ($output === false)
             return false;
         $output['stages'] = json_decode($output['stages'], true);
         return $output;
+    }
+
+    /**
+     * get pdo instance.
+     * @return \PDO
+     */
+    public static function getPdo(): \PDO
+    {
+        return self::$instance->pdo;
     }
 }
