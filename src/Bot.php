@@ -56,7 +56,7 @@ class Bot
             $user = $this->database->getUser(Webhook::getObject()->message->chat->id);
             $call = $user['stage_call'];
             $this->stage = new $call();
-            foreach ($user['stage'][$user['stage_call']] as $propertyName => $propertyValue)
+            foreach ($user['stages'][$user['stage_call']] as $propertyName => $propertyValue)
                 $this->stage->{$propertyName} = $propertyValue;
 
         }
@@ -132,14 +132,24 @@ class Bot
             throw new Exception("Bind Error : [$nodeName] Node not found in [$stageName] stage");
         }
 
+
+        // it means `route` doesn't called before `bindNode`.
+        // when you calling `route` method, it will set the _node.
+        if(empty(self::$bot->toBeRoutedNode))
+            self::$bot->stage->_prev = self::$bot->stage->_node;
+        // in `route` bound instead of here ...
+
         self::$bot->stage->_node = $nodeName;
+
+
     }
     /**
      * close the current node.(it will bind to `default` node, `default` node if not exists, it will be ignored)
      */
     public static function closeNode(): void
     {
-        self::$bot->stage->_node = '';
+        self::$bot->stage->_prev = self::$bot->stage->_node;
+        self::$bot->stage->_node = 'default';
     }
 
 
@@ -164,6 +174,7 @@ class Bot
             throw new Exception("Route Error : [$nodeName] Node not found in [$stageName] stage");
         }
 
+        self::$bot->stage->_prev = $nodeName;
         self::$bot->toBeRoutedNode = $nodeName;
         return new RouteRule();
     }
@@ -185,5 +196,16 @@ class Bot
     {
         self::$bot->routedNode = $routedNode;
     }
+
+    /**
+     * get the previous node.
+     * @return string
+     */
+    public static function getPreviousNode(): string
+    {
+        return self::$bot->stage->_prev;
+
+    }
+
 
 }
