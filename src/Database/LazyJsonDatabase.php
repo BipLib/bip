@@ -19,21 +19,28 @@ use Bip\App\Stage;
  */
 class LazyJsonDatabase implements Database
 {
+
+    private static $instance = null;
     private mixed $json;
     private string $file;
 
     /**
      * LazyJsonDatabase constructor.
      */
-    public function __construct(string $file)
+    private function __construct(){}
+    public static function init(string $file): LazyJsonDatabase
     {
-        $this->file = $file;
-        if (is_file($file))
-            $this->json = json_decode(file_get_contents($file),true); //caution : if an error occurs in json file (e.g syntax error) all data in database will be removed.
-        else {
-            file_put_contents($file, '[]');
-            $this->json = [];
+        if (empty(self::$instance)) {
+            self::$instance = new LazyJsonDatabase();
+            self::$instance->file = $file;
+            if (is_file($file))
+                self::$instance->json = json_decode(file_get_contents($file),true); //caution : if an error occurs in json file (e.g syntax error) all data in database will be removed.
+            else {
+                file_put_contents($file, '[]');
+                self::$instance->json = [];
+            }
         }
+        return self::$instance;
     }
 
     /**
@@ -41,39 +48,39 @@ class LazyJsonDatabase implements Database
      */
     private function write()
     {
-        file_put_contents($this->file, json_encode($this->json,JSON_PRETTY_PRINT));
+        file_put_contents(self::$instance->file, json_encode(self::$instance->json,JSON_PRETTY_PRINT));
     }
 
     public function insertUser(int $chat_id ,Stage $stage): bool
     {
-        foreach ($this->json as $row)
+        foreach (self::$instance->json as $row)
             if ($row['chat_id'] == $chat_id)
                 return false;
 
 
-        $this->json[]   = [
+        self::$instance->json[]   = [
             'chat_id'   => $chat_id,
             'stage_call'=>$stage::class,
             'stages'     => [$stage::class => $stage]
         ];
-        $this->write();
+        self::$instance->write();
         return true;
     }
 
     public function getUser(int $chat_id): array|bool
     {
-        foreach ($this->json as $row)
+        foreach (self::$instance->json as $row)
             if ($row['chat_id'] == $chat_id)
                 return $row;
         return false;
     }
     public function updateStage(int $chat_id,Stage $stage): bool
     {
-        foreach ($this->json as $rowKey => $rowVal) {
+        foreach (self::$instance->json as $rowKey => $rowVal) {
             if ($rowVal['chat_id'] == $chat_id) {
-                $this->json[$rowKey]['stages'][$stage::class] = $stage;
-                $this->json[$rowKey]['stage_call'] = $stage::class;
-                $this->write();
+                self::$instance->json[$rowKey]['stages'][$stage::class] = $stage;
+                self::$instance->json[$rowKey]['stage_call'] = $stage::class;
+                self::$instance->write();
                 return true;
             }
         }
