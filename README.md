@@ -12,9 +12,7 @@ Bip is php library for creating powerful and stage base telegram bot application
 - Everything in Stages and Nodes
 - Powerful Routing System
 - IDE Autocomplete
-- Stage Table Mapper 
 - Multi Bot Developing
-- Database Optimization
 
 
 ## Get Started
