@@ -15,10 +15,15 @@ namespace Bip\App;
 abstract class Stage
 {
     /**
+     * previous node name.
+     * @var string
+     */
+    public string $_prev = 'default';
+    /**
      * next node name.
      * @var string
      */
-    public string $_node;
+    public string $_node = 'default';
     /**
      * in every run of the Stage, controller automatically called.
      */
