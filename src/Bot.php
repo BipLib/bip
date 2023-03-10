@@ -16,7 +16,9 @@ use Bip\App\Config;
 use Bip\App\RouteRule;
 use Bip\App\Stage;
 use Bip\Database\Database;
+use Bip\Logger\Logger;
 use Bip\Telegram\Webhook;
+use ErrorException;
 use Exception;
 
 class Bot
@@ -28,6 +30,7 @@ class Bot
     private string $toBeRoutedNode;
     private string $routedNode;
 
+
     /**
      * initialize bot.
      * @param Stage $stage
@@ -35,23 +38,41 @@ class Bot
      */
     public static function init(Stage $stage): ?Bot
     {
+        //setting error and exception handler
+        set_exception_handler(function ($exception) {
+            $message = [];
+            $message['ip'] = $_SERVER['REMOTE_ADDR'] ?? 'no ip';
+            $message['update'] = Webhook::getObject() ?? 'no update';
+            $message['level'] = $exception->getCode();
+            $message['message'] = $exception->getMessage();
+            $message['file'] = $exception->getFile();
+            $message['line'] = $exception->getLine();
+            Logger::add($message,'errors');
+            echo 'Something is Wrong! Please try again later.';
+        });
+        set_error_handler(function ($errno, $errstr, $errfile, $errline) {
+            throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+        }, E_ALL);
+
+
+        // create bot instance
         if(empty(self::$bot)) {
-            self::$bot = new Bot();
-            self::$bot->stage = $stage;
-            self::$bot->database = Config::get('database');
+        self::$bot = new Bot();
+        self::$bot->stage = $stage;
+        self::$bot->database = Config::get('database');
 
-            if (!self::$bot->database->insertUser(Webhook::getObject()->message->chat->id, self::$bot->stage)) {
+        if (!self::$bot->database->insertUser(Webhook::getObject()->message->chat->id, self::$bot->stage)) {
 
-                //convert stdClass object to Stage object
-                $user = self::$bot->database->getUser(Webhook::getObject()->message->chat->id);
-                $call = $user['stage_call'];
-                self::$bot->stage = new $call();
-                foreach ($user['stages'][$user['stage_call']] as $propertyName => $propertyValue)
-                    self::$bot->stage->{$propertyName} = $propertyValue;
-
-            }
+            //convert stdClass object to Stage object
+            $user = self::$bot->database->getUser(Webhook::getObject()->message->chat->id);
+            $call = $user['stage_call'];
+            self::$bot->stage = new $call();
+            foreach ($user['stages'][$user['stage_call']] as $propertyName => $propertyValue)
+                self::$bot->stage->{$propertyName} = $propertyValue;
 
         }
+
+    }
         return self::$bot;
 
     }
