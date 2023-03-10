@@ -22,7 +22,7 @@ use Bip\Telegram\Update\Update;
 class Webhook
 {
     private static Webhook $update;
-    private object $object;
+    private ?object $object = null;
 
     /**
      * Update constructor.
@@ -33,9 +33,9 @@ class Webhook
 
     /**
      * get update instance.
-     * @return Webhook
+     * @return object|null
      */
-    public static function getObject(): object
+    public static function getObject(): ?object
     {
         self::init();
         return self::$update->object;
@@ -55,6 +55,9 @@ class Webhook
             self::$update->object = json_decode(file_get_contents('php://input'));
         }
     }
+
+
+
 
 
 
