@@ -29,6 +29,9 @@ class Bot
     private string $newStage;
     private string $toBeRoutedNode;
     private string $routedNode;
+    private static int $mode = 0;
+    const MODE_DEV = 0;
+    const MODE_PROD = 1;
 
 
     /**
@@ -53,6 +56,13 @@ class Bot
         set_error_handler(function ($errno, $errstr, $errfile, $errline) {
             throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
         }, E_ALL);
+
+        // checking mode
+        if(self::$mode == self::MODE_PROD) {
+            //protect the bot from unauthorized access
+            if (!(self::ipInRange($_SERVER['REMOTE_ADDR'], '91.108.4.0/22') or self::ipInRange($_SERVER['REMOTE_ADDR'], '149.154.160.0/20')))
+                die('Unauthorized IP Address !');
+        }
 
 
         // create bot instance
@@ -224,6 +234,34 @@ class Bot
     {
         return self::$bot->stage->_prev;
 
+    }
+
+    /**
+     * check if the ip is in range.
+     * @param $ip
+     * @param $range
+     * @return bool
+     */
+    private static function ipInRange($ip,$range): bool
+    {
+        if(!str_contains($range, '/'))
+            $range .= '/32';
+        list($range, $netmask) = explode('/',$range,2);
+        $range_decimal = ip2long($range);
+        $ip_decimal = ip2long($ip);
+        $wildcard_decimal = pow(2,(32-$netmask))-1;
+        $netmask_decimal = ~ $wildcard_decimal;
+
+        return ($ip_decimal & $netmask_decimal) == ($range_decimal & $netmask_decimal);
+
+    }
+    /**
+     * set bot mode. it must be called before `init` method.
+     * @param int $mode
+     */
+    public static function setMode(int $mode): void
+    {
+        self::$mode = $mode;
     }
 
 
