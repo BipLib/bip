@@ -30,12 +30,11 @@ class Logger
 
     /**
      * add a log to the log file.
-     * @param mixed $logMessage
-     * @param string $logType
-     * @param string $logTag
+     * @param mixed $log
+     * @param string $logFile
      * @return void
      */
-    public static function add(mixed $logMessage,string $logType = '',string $logTag = 'default'): void
+    public static function add(mixed $log, string $logFile = 'default'): void
     {
         if(empty(self::$logger))
             self::$logger = new Logger();
@@ -46,23 +45,23 @@ class Logger
         //create logs directory if not exists and create log file if not exists
         if(!is_dir(__DIR__."/../../logs"))
             mkdir(__DIR__."/../../logs");
-        if(!file_exists(__DIR__."/../../logs/$logTag.json.log"))
-            file_put_contents(__DIR__."/../../logs/$logTag.json.log",'[]');
+        if(!file_exists(__DIR__."/../../logs/$logFile.json.log"))
+            file_put_contents(__DIR__."/../../logs/$logFile.json.log",'[]');
 
 
-        $log = json_decode(file_get_contents(__DIR__."/../../logs/$logTag.json.log"));
+        $logsArr = json_decode(file_get_contents(__DIR__."/../../logs/$logFile.json.log"));
 
-        $log[] = [
-            'type' => $logType,
+        $logsArr[] = [
+            'number'=> count($logsArr),
             'time' => time(),
-            'message' => $logMessage,
+            'log' => $log,
         ];
 
         // remove first log if log count is more than logCount
-        if(count($log) > self::$logger->logCount)
-            array_shift($log);
+        if(count($logsArr) > self::$logger->logCount)
+            array_shift($logsArr);
 
-        file_put_contents(__DIR__."/../../logs/$logTag.json.log",json_encode($log,JSON_PRETTY_PRINT));
+        file_put_contents(__DIR__."/../../logs/$logFile.json.log",json_encode($logsArr,JSON_PRETTY_PRINT));
 
 
     }
