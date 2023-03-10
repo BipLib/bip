@@ -145,10 +145,7 @@ if (! function_exists('text')){
      */
     function text(): string
     {
-        if(isset(\Bip\Telegram\Webhook::get()->message->text))
-            return \Bip\Telegram\Webhook::get()->message->text;
-        else
-            return '';
+        return \Bip\Telegram\Webhook::get()->message->text ?? '';
     }
 
 }
