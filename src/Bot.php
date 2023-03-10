@@ -35,34 +35,31 @@ class Bot
      */
     public static function init(Stage $stage): ?Bot
     {
-        if(empty(self::$bot))
-            self::$bot = new Bot($stage);
-        return self::$bot;
-    }
-    /**
-     * Bot constructor.
-     * @param Stage $stage
-     * @throws Exception
-     */
-    private function __construct(Stage $stage)
-    {
-        $this->stage = $stage;
-        $this->database = Config::get('database');
+        if(empty(self::$bot)) {
+            self::$bot = new Bot();
+            self::$bot->stage = $stage;
+            self::$bot->database = Config::get('database');
 
+            if (!self::$bot->database->insertUser(Webhook::getObject()->message->chat->id, self::$bot->stage)) {
 
-        if (!$this->database->insertUser(Webhook::getObject()->message->chat->id, $this->stage)) {
+                //convert stdClass object to Stage object
+                $user = self::$bot->database->getUser(Webhook::getObject()->message->chat->id);
+                $call = $user['stage_call'];
+                self::$bot->stage = new $call();
+                foreach ($user['stages'][$user['stage_call']] as $propertyName => $propertyValue)
+                    self::$bot->stage->{$propertyName} = $propertyValue;
 
-            //convert stdClass object to Stage object
-            $user = $this->database->getUser(Webhook::getObject()->message->chat->id);
-            $call = $user['stage_call'];
-            $this->stage = new $call();
-            foreach ($user['stages'][$user['stage_call']] as $propertyName => $propertyValue)
-                $this->stage->{$propertyName} = $propertyValue;
+            }
 
         }
+        return self::$bot;
+
     }
 
-
+    /**
+     * Bot constructor.
+     */
+    private function __construct(){}
 
     /**
      * set a property to be added in stage.
@@ -88,6 +85,7 @@ class Bot
      */
     public static function run()
     {
+
         // call the stage controller
         self::$bot->stage->controller();
 
