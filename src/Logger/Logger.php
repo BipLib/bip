@@ -39,7 +39,8 @@ class Logger
         if(empty(self::$logger))
             self::$logger = new Logger();
 
-        Config::add(['logMaxCount' => 100]);
+        if(!Config::isSet('logMaxCount'))
+            Config::add(['logMaxCount' => 100]);
         self::$logger->logCount = Config::get('logMaxCount');
 
         //create logs directory if not exists and create log file if not exists
@@ -52,9 +53,9 @@ class Logger
         $logsArr = json_decode(file_get_contents(__DIR__."/../../logs/$logFile.json.log"));
 
         $logsArr[] = [
+            'log' => $log,
             'number'=> count($logsArr),
             'time' => time(),
-            'log' => $log,
         ];
 
         // remove first log if log count is more than logCount
