@@ -15,11 +15,6 @@ namespace Bip\App;
 abstract class Stage
 {
     /**
-     * previous node name.
-     * @var string
-     */
-    public string $_prev = 'default';
-    /**
      * next node name.
      * @var string
      */
