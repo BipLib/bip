@@ -6,14 +6,14 @@ if (! function_exists('msg')) {
      * short function for sending message.
      * @param string $text
      * @param array|null $reply_markup
-     * @return void
+     * @return object
      */
-    function msg(string $text,array $reply_markup = null) : void
+    function msg(string $text,array $reply_markup = null) : object
         {
-            \Bip\Telegram\Call::sendMessage(
-                chat_id : \Bip\Telegram\Webhook::getObject()->message->chat->id,
+            return \Bip\Telegram\Call::sendMessage(
+                chat_id : peer(),
                 text : $text,
-                parse_mode : 'MARKDOWN',
+                parse_mode : 'html',
                 reply_markup: $reply_markup
             );
         }
@@ -28,9 +28,9 @@ if(! function_exists('msgr')){
     function msgr(string $text,array $reply_markup = null) : void
     {
         \Bip\Telegram\Call::sendMessage(
-            chat_id : \Bip\Telegram\Webhook::getObject()->message->chat->id,
+            chat_id : peer(),
             text : $text,
-            parse_mode : 'MARKDOWN',
+            parse_mode : 'html',
             reply_to_message_id : \Bip\Telegram\Webhook::getObject()->message->message_id,
             reply_markup: $reply_markup
         );
@@ -54,7 +54,7 @@ if (! function_exists('update')){
      */
     function update(): object
     {
-        return \Bip\Telegram\Webhook::get();
+        return \Bip\Telegram\Webhook::getObject();
     }
 
 }
@@ -102,17 +102,7 @@ if (! function_exists('route')) {
         return \Bip\Bot::route($node);
     }
 }
-if(! function_exists('prevNode')){
-    /**
-     * get previous node.
-     * @return string
-     */
-    function prevNode(): string
-    {
-        return \Bip\Bot::getPreviousNode();
-    }
 
-}
 if (! function_exists('dd')){
     /**
      * Dump and die.
@@ -133,7 +123,7 @@ if (! function_exists('peer')){
      */
     function peer(): int
     {
-        return \Bip\Telegram\Webhook::get()->message->chat->id;
+        return \Bip\Telegram\Webhook::getObject()->message->from->id ?? \Bip\Telegram\Webhook::getObject()->callback_query->from->id ?? -1;
     }
 }
 
@@ -145,9 +135,64 @@ if (! function_exists('text')){
      */
     function text(): string
     {
-        return \Bip\Telegram\Webhook::get()->message->text ?? '';
+        return \Bip\Telegram\Webhook::getObject()->message->text ?? '';
     }
 
+}
+if (! function_exists('data')){
+    /**
+     * get callback data.
+     * @return string
+     */
+    function data(): string
+    {
+        return \Bip\Telegram\Webhook::getObject()->callback_query->data ?? '';
+    }
+}
+if (! function_exists('emsg')){
+    /**
+     * send message with edit.
+     * @param string $text
+     * @param array|null $reply_markup
+     * @return void
+     */
+    function emsg(string $text,array $reply_markup = null): void
+    {
+        \Bip\Telegram\Call::editMessageText(
+            text: $text,
+            chat_id: peer(),
+            message_id: \Bip\Telegram\Webhook::getObject()->callback_query->message->message_id,
+            parse_mode: 'html',
+            reply_markup: $reply_markup
+        );
+    }
+}
+if (! function_exists('deleteMessage')){
+    /**
+     * delete message.
+     * @param int $message_id
+     * @return void
+     */
+    function deleteMessage(int $message_id): void
+    {
+        \Bip\Telegram\Call::deleteMessage(
+            chat_id: peer(),
+            message_id: $message_id
+        );
+    }
+}
+if (! function_exists('delLastMsg')){
+    /**
+     * delete last message.
+     * @return void
+     */
+    function delLastMsg(): void
+    {
+        \Bip\Telegram\Call::deleteMessage(
+            chat_id: peer(),
+            message_id: \Bip\Telegram\Webhook::getObject()->message->message_id ?? \Bip\Telegram\Webhook::getObject()->callback_query->message->message_id
+        );
+    }
 }
 
 
