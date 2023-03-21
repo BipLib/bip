@@ -40,6 +40,7 @@ class MysqlDatabase implements Database
 create table if not exists `state`(
 id         int auto_increment primary key,
 chat_id    bigint  not null comment 'user chat id',
+join_date timestamp default NOW() not null,
 stage_call text null comment 'stage to be called',
 stages     json null comment 'array of user stage',
 constraint state_pk2
@@ -87,5 +88,12 @@ constraint state_pk2
     public static function getPdo(): \PDO
     {
         return self::$instance->pdo;
+    }
+    public static function insert(string $table, array $data): bool
+    {
+        $keys = array_keys($data);
+        $values = array_values($data);
+        $stmt = self::$instance->pdo->prepare("insert into $table (" . implode(',', $keys) . ") values (" . implode(',', array_fill(0, count($values), '?')) . ")");
+        return $stmt->execute($values);
     }
 }
