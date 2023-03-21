@@ -44,6 +44,17 @@ class RouteRule
         $this->result = $this->result && (isset(Webhook::getObject()->message->text) && Webhook::getObject()->message->text == $text);
         return $this;
     }
+
+    /**
+     * route to node if CallbackQuery->data is equal to $data.
+     * @param string $data
+     * @return $this
+     */
+    public function onCallbackData(string $data): RouteRule
+    {
+        $this->result = $this->result && (isset(Webhook::getObject()->callback_query->data) && Webhook::getObject()->callback_query->data == $data);
+        return $this;
+    }
     public function __destruct()
     {
         if ($this->result) {
