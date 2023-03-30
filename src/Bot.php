@@ -71,10 +71,12 @@ class Bot
         self::$bot->stage = $stage;
         self::$bot->database = Config::get('database');
 
-        if (!self::$bot->database->insertUser(Webhook::getObject()->message->chat->id, self::$bot->stage)) {
+        
+
+        if (!self::$bot->database->insertUser(peer(), self::$bot->stage)) {
 
             //convert stdClass object to Stage object
-            $user = self::$bot->database->getUser(Webhook::getObject()->message->chat->id);
+            $user = self::$bot->database->getUser(peer());
             $call = $user['stage_call'];
             self::$bot->stage = new $call();
             foreach ($user['stages'][$user['stage_call']] as $propertyName => $propertyValue)
@@ -129,23 +131,22 @@ class Bot
             self::$bot->stage->default();
 
 
+
         // remove all non-primitive data types
         foreach (self::$bot->stage as $propertyKey => $propertyVal)
             if (is_object($propertyVal))
                 unset(self::$bot->stage->{$propertyKey});
 
         // update stage in database
-        self::$bot->database->updateStage(Webhook::getObject()->message->chat->id, self::$bot->stage);
+        self::$bot->database->updateStage(peer(), self::$bot->stage);
 
 
         // change stage if $newStage be isn't empty.
         if (!empty(self::$bot->newStage)) {
             $newStage = self::$bot->newStage;
             self::$bot->stage = new $newStage();
-
             // update again for changing stage
-            self::$bot->database->updateStage(Webhook::getObject()->message->chat->id, self::$bot->stage);
-
+            self::$bot->database->updateStage(peer(), self::$bot->stage);
         }
     }
 
@@ -154,31 +155,22 @@ class Bot
      * @param string $nodeName
      * @throws Exception
      */
-    public static function bindNode(string $nodeName)
+    public static function bindNode(string $nodeName): void
     {
         if(!method_exists(self::$bot->stage,$nodeName)) {
             $stageName = get_class(self::$bot->stage);
             throw new Exception("Bind Error : [$nodeName] Node not found in [$stageName] stage");
         }
 
-
-        // it means `route` doesn't called before `bindNode`.
-        // when you calling `route` method, it will set the _node.
-        if(empty(self::$bot->toBeRoutedNode))
-            self::$bot->stage->_prev = self::$bot->stage->_node;
-        // in `route` bound instead of here ...
-
         self::$bot->stage->_node = $nodeName;
-
-
     }
+
     /**
      * close the current node.(it will bind to `default` node, `default` node if not exists, it will be ignored)
      */
     public static function closeNode(): void
     {
-        self::$bot->stage->_prev = self::$bot->stage->_node;
-        self::$bot->stage->_node = 'default';
+        bindNode('default');
     }
 
 
@@ -203,7 +195,6 @@ class Bot
             throw new Exception("Route Error : [$nodeName] Node not found in [$stageName] stage");
         }
 
-        self::$bot->stage->_prev = $nodeName;
         self::$bot->toBeRoutedNode = $nodeName;
         return new RouteRule();
     }
@@ -226,15 +217,6 @@ class Bot
         self::$bot->routedNode = $routedNode;
     }
 
-    /**
-     * get the previous node.
-     * @return string
-     */
-    public static function getPreviousNode(): string
-    {
-        return self::$bot->stage->_prev;
-
-    }
 
     /**
      * check if the ip is in range.
