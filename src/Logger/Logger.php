@@ -44,13 +44,13 @@ class Logger
         self::$logger->logCount = Config::get('logMaxCount');
 
         //create logs directory if not exists and create log file if not exists
-        if(!is_dir(__DIR__."/../../logs"))
-            mkdir(__DIR__."/../../logs");
-        if(!file_exists(__DIR__."/../../logs/$logFile.json.log"))
-            file_put_contents(__DIR__."/../../logs/$logFile.json.log",'[]');
+        if(!is_dir("logs"))
+            mkdir("logs");
+        if(!file_exists("logs/$logFile.json.log"))
+            file_put_contents("logs/$logFile.json.log",'[]');
 
 
-        $logsArr = json_decode(file_get_contents(__DIR__."/../../logs/$logFile.json.log"));
+        $logsArr = json_decode(file_get_contents("logs/$logFile.json.log"));
 
         $logsArr[] = [
             'log' => $log,
@@ -62,7 +62,7 @@ class Logger
         if(count($logsArr) > self::$logger->logCount)
             array_shift($logsArr);
 
-        file_put_contents(__DIR__."/../../logs/$logFile.json.log",json_encode($logsArr,JSON_PRETTY_PRINT));
+        file_put_contents("logs/$logFile.json.log",json_encode($logsArr,JSON_PRETTY_PRINT));
 
 
     }
@@ -77,20 +77,20 @@ class Logger
         if(empty(self::$logger))
             self::$logger = new Logger();
 
-        if(!file_exists(__DIR__."/../../logs/$logTag..json.log"))
+        if(!file_exists("logs/$logTag.json.log"))
             return [];
 
-        return json_decode(file_get_contents(__DIR__."/../../logs/$logTag.json.log"),true);
+        return json_decode(file_get_contents("logs/$logTag.json.log"),true);
     }
     public static function clear(string $logTag = 'default'): void
     {
         if(empty(self::$logger))
             self::$logger = new Logger();
 
-        if(!file_exists(__DIR__."/../../logs/$logTag.json.log"))
+        if(!file_exists("logs/$logTag.json.log"))
             return;
 
-        file_put_contents(__DIR__."/../../logs/$logTag.json.log",'[]');
+        file_put_contents("logs/$logTag.json.log",'[]');
     }
     /**
      * change the log count.
