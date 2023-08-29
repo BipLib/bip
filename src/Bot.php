@@ -69,9 +69,9 @@ class Bot
         if(empty(self::$bot)) {
         self::$bot = new Bot();
         self::$bot->stage = $stage;
-        self::$bot->database = Config::get('database');
+        self::$bot->database = Config::get('database')['driver']::init(...Config::get('database')['args']);
 
-        
+
 
         if (!self::$bot->database->insertUser(peer(), self::$bot->stage)) {
 
