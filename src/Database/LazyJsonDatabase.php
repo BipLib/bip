@@ -12,6 +12,7 @@ namespace Bip\Database;
 
 
 use Bip\App\Stage;
+use Bip\Bot;
 
 /**
  * Class LazyJsonDatabase , [This database is slow. it is designed to help the development]
@@ -60,8 +61,8 @@ class LazyJsonDatabase implements Database
 
         self::$instance->json[]   = [
             'chat_id'   => $chat_id,
-            'stage_call'=>$stage::class,
-            'stages'     => [$stage::class => $stage]
+            'stage_call'=> str_replace(Bot::$stagePath,'',$stage::class),
+            'stages'    => [str_replace(Bot::$stagePath,'',$stage::class) => $stage]
         ];
         self::$instance->write();
         return true;
@@ -78,8 +79,8 @@ class LazyJsonDatabase implements Database
     {
         foreach (self::$instance->json as $rowKey => $rowVal) {
             if ($rowVal['chat_id'] == $chat_id) {
-                self::$instance->json[$rowKey]['stages'][$stage::class] = $stage;
-                self::$instance->json[$rowKey]['stage_call'] = $stage::class;
+                self::$instance->json[$rowKey]['stages'][str_replace(Bot::$stagePath,'',$stage::class)] = $stage;
+                self::$instance->json[$rowKey]['stage_call'] = str_replace(Bot::$stagePath,'',$stage::class);
                 self::$instance->write();
                 return true;
             }

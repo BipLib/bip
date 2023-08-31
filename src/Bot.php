@@ -29,13 +29,17 @@ class Bot
     private string $newStage;
     private string $toBeRoutedNode;
     private string $routedNode;
+    public static string $stagePath; // for decreasing redundancy of database
     private static int $mode = 0;
     const MODE_DEV = 0;
     const MODE_PROD = 1;
 
 
+
+
     /**
-     * initialize bot.
+     * initialize bot. this method must be called before run method.
+     * All of other stages must be next to this stage directory. (for decreasing redundancy of database)
      * @param Stage $stage
      * @return Bot|null
      */
@@ -71,6 +75,8 @@ class Bot
         self::$bot->stage = $stage;
         self::$bot->database = Config::get('database')['driver']::init(...Config::get('database')['args']);
 
+        // remove last part of namespace for getting stage path
+        self::$stagePath = substr(get_class(self::$bot->stage), 0, strrpos(get_class(self::$bot->stage), '\\')).'\\';
 
 
         if (!self::$bot->database->insertUser(peer(), self::$bot->stage)) {
@@ -78,6 +84,7 @@ class Bot
             //convert stdClass object to Stage object
             $user = self::$bot->database->getUser(peer());
             $call = $user['stage_call'];
+            $call = Bot::$stagePath.$call;
             self::$bot->stage = new $call();
             foreach ($user['stages'][$user['stage_call']] as $propertyName => $propertyValue)
                 self::$bot->stage->{$propertyName} = $propertyValue;

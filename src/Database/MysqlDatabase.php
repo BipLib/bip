@@ -11,6 +11,7 @@
 namespace Bip\Database;
 
 use Bip\App\Stage;
+use Bip\Bot;
 
 class MysqlDatabase implements Database
 {
@@ -37,21 +38,22 @@ class MysqlDatabase implements Database
     public function insertUser(int $chat_id, Stage $stage): bool
     {
         self::$instance->pdo->exec("
-create table if not exists `state`(
-id         int auto_increment primary key,
-chat_id    bigint  not null comment 'user chat id',
-join_date timestamp default NOW() not null,
-stage_call text null comment 'stage to be called',
-stages     json null comment 'array of user stage',
-constraint state_pk2
-    unique (chat_id));
+CREATE TABLE IF NOT EXISTS `state`
+(
+    `chat_id`    BIGINT NOT NULL COMMENT 'User chat_id',
+    `join_date`  TIMESTAMP DEFAULT NOW() NOT NULL,
+    `stage_call` TEXT NULL COMMENT 'Stage to be called',
+    `stages`     JSON NULL COMMENT 'Array of user stages',
+    CONSTRAINT `state_pk`
+        PRIMARY KEY (`chat_id`)
+);
 ");
 
         if (self::$instance->getUser($chat_id) !== false)
             return false;
 
-        $stmt = self::$instance->pdo->prepare("insert into state (chat_id,stage_call,stages) values (?,?,?)");
-        return $stmt->execute([$chat_id, $stage::class, json_encode([$stage::class => $stage])]);
+        $stmt = self::$instance->pdo->prepare("INSERT INTO `state` (chat_id,stage_call,stages) VALUES (?,?,?)");
+        return $stmt->execute([$chat_id, str_replace(Bot::$stagePath,'',$stage::class), json_encode([str_replace(Bot::$stagePath,'',$stage::class) => $stage])]);
 
     }
 
@@ -63,16 +65,16 @@ constraint state_pk2
         $user = self::$instance->getUser($chat_id);
         if ($user === false)
             return false;
-        $user['stages'][$stage::class] = $stage;
-        $user['stage_call'] = $stage::class;
-        $stmt = $this->pdo->prepare("update state set stage_call = ?, stages = ? where chat_id = ?");
+        $user['stages'][str_replace(Bot::$stagePath,'',$stage::class)] = $stage;
+        $user['stage_call'] = str_replace(Bot::$stagePath,'',$stage::class);
+        $stmt = $this->pdo->prepare("UPDATE `state` SET stage_call = ?, stages = ? WHERE chat_id = ?");
         return $stmt->execute([$user['stage_call'], json_encode($user['stages']), $chat_id]);
 
     }
 
     public function getUser(int $chat_id): array|bool
     {
-        $stmt = self::$instance->pdo->prepare("select * from state where chat_id = ?");
+        $stmt = self::$instance->pdo->prepare("SELECT * FROM `state` WHERE chat_id = ?");
         $stmt->execute([$chat_id]);
         $output =  $stmt->fetch(\PDO::FETCH_ASSOC);
         if ($output === false)
@@ -93,7 +95,7 @@ constraint state_pk2
     {
         $keys = array_keys($data);
         $values = array_values($data);
-        $stmt = self::$instance->pdo->prepare("insert into $table (" . implode(',', $keys) . ") values (" . implode(',', array_fill(0, count($values), '?')) . ")");
+        $stmt = self::$instance->pdo->prepare("INSERT INTO `$table` (" . implode(',', $keys) . ") VALUES (" . implode(',', array_fill(0, count($values), '?')) . ")");
         return $stmt->execute($values);
     }
 }
