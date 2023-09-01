@@ -30,20 +30,15 @@ class Bot
     private string $toBeRoutedNode;
     private string $routedNode;
     public static string $stagePath; // for decreasing redundancy of database
+    private static array $allowedUpdates = [];
     private static int $mode = 0;
     const MODE_DEV = 0;
     const MODE_PROD = 1;
 
-
-
-
     /**
-     * initialize bot. this method must be called before run method.
-     * All of other stages must be next to this stage directory. (for decreasing redundancy of database)
-     * @param Stage $stage
-     * @return Bot|null
+     * run the bot. the passed stage must be in root of stages directory.
      */
-    public static function init(Stage $stage): ?Bot
+    public static function run(Stage $stage): void
     {
         //setting error and exception handler
         set_exception_handler(function ($exception) {
@@ -64,67 +59,52 @@ class Bot
         // checking mode
         if(self::$mode == self::MODE_PROD) {
             //protect the bot from unauthorized access
-            if (!(self::ipInRange($_SERVER['REMOTE_ADDR'], '91.108.4.0/22') or self::ipInRange($_SERVER['REMOTE_ADDR'], '149.154.160.0/20')))
+            if (!(
+                self::ipInRange($_SERVER['REMOTE_ADDR'], '91.108.4.0/22') // telegram ip range
+                or self::ipInRange($_SERVER['REMOTE_ADDR'], '149.154.160.0/20') // telegram ip range
+                or self::ipInRange($_SERVER['REMOTE_ADDR'], '172.0.0.0/8') // local ip range docker containers
+                or self::ipInRange($_SERVER['REMOTE_ADDR'], '127.0.0.0/8') // local ip range system loop back
+            ))
                 die('Unauthorized IP Address !');
+
+        }
+
+        // checking allowed updates
+        if(!empty(self::$allowedUpdates)){
+            $boolResult = false;
+            foreach (self::$allowedUpdates as $allowedUpdate)
+                if(isset(Webhook::getObject()->{$allowedUpdate}))
+                    $boolResult = true;
+            if (!$boolResult)
+                die('Unauthorized Update !');
         }
 
 
         // create bot instance
         if(empty(self::$bot)) {
-        self::$bot = new Bot();
-        self::$bot->stage = $stage;
-        self::$bot->database = Config::get('database')['driver']::init(...Config::get('database')['args']);
+            self::$bot = new Bot();
+            self::$bot->stage = $stage;
+            self::$bot->database = Config::get('database')['driver']::init(...Config::get('database')['args']);
 
-        // remove last part of namespace for getting stage path
-        self::$stagePath = substr(get_class(self::$bot->stage), 0, strrpos(get_class(self::$bot->stage), '\\')).'\\';
+            // remove last part of namespace for getting stage path
+            self::$stagePath = substr(get_class(self::$bot->stage), 0, strrpos(get_class(self::$bot->stage), '\\')).'\\';
 
+            if(peer() == -1)
+                die("Failed To Inserting User !");
 
-        if (!self::$bot->database->insertUser(peer(), self::$bot->stage)) {
+            if (!self::$bot->database->insertUser(peer(), self::$bot->stage)) {
 
-            //convert stdClass object to Stage object
-            $user = self::$bot->database->getUser(peer());
-            $call = $user['stage_call'];
-            $call = Bot::$stagePath.$call;
-            self::$bot->stage = new $call();
-            foreach ($user['stages'][$user['stage_call']] as $propertyName => $propertyValue)
-                self::$bot->stage->{$propertyName} = $propertyValue;
+                //convert stdClass object to Stage object
+                $user = self::$bot->database->getUser(peer());
+                $call = $user['stage_call'];
+                $call = Bot::$stagePath.$call;
+                self::$bot->stage = new $call();
+                foreach ($user['stages'][$user['stage_call']] as $propertyName => $propertyValue)
+                    self::$bot->stage->{$propertyName} = $propertyValue;
+
+            }
 
         }
-
-    }
-        return self::$bot;
-
-    }
-
-    /**
-     * Bot constructor.
-     */
-    private function __construct(){}
-
-    /**
-     * set a property to be added in stage.
-     * @param string $name
-     * @param mixed $value
-     */
-    public static function setProperty(string $name, mixed $value)
-    {
-        self::$bot->stage->{$name} = $value;
-    }
-
-    /**
-     * unset a property.
-     * @param string $name
-     */
-    public static function unsetProperty(string $name)
-    {
-        unset(self::$bot->stage->{$name});
-    }
-
-    /**
-     * run the bot.
-     */
-    public static function run()
-    {
 
         // call the stage controller
         self::$bot->stage->controller();
@@ -156,6 +136,32 @@ class Bot
             self::$bot->database->updateStage(peer(), self::$bot->stage);
         }
     }
+
+
+    /**
+     * Bot constructor.
+     */
+    private function __construct(){}
+
+    /**
+     * set a property to be added in stage.
+     * @param string $name
+     * @param mixed $value
+     */
+    public static function setProperty(string $name, mixed $value)
+    {
+        self::$bot->stage->{$name} = $value;
+    }
+
+    /**
+     * unset a property.
+     * @param string $name
+     */
+    public static function unsetProperty(string $name)
+    {
+        unset(self::$bot->stage->{$name});
+    }
+
 
     /**
      * binds a node.
@@ -245,12 +251,21 @@ class Bot
 
     }
     /**
-     * set bot mode. it must be called before `init` method.
+     * set bot mode.
      * @param int $mode
      */
     public static function setMode(int $mode): void
     {
         self::$mode = $mode;
+    }
+
+    /**
+     * set allowed ip addresses.
+     * @param array $allowedUpdates
+     */
+    public static function setAllowedUpdates(array $allowedUpdates): void
+    {
+        self::$allowedUpdates = $allowedUpdates;
     }
 
 
