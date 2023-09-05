@@ -7,6 +7,5 @@ use Bip\Bot;
 use Bots\NotePad\Stages\StartStage;
 
 
-
-Bot::init(new StartStage());
-Bot::run();
+# Bot::setMode(Bot::MODE_PROD);
+Bot::run(new StartStage());
