@@ -10,6 +10,7 @@
 
 namespace Bip\Database;
 
+use Bip\App\Config;
 use Bip\App\Stage;
 use Bip\Bot;
 
@@ -22,7 +23,7 @@ class MysqlDatabase implements Database
 
     private function __construct(string $host, string $user, string $pass, string $db)
     {
-        $this->pdo = new \PDO("mysql:host=$host;dbname=$db", $user, $pass);
+        $this->pdo = new \PDO("mysql:host=$host;dbname=$db", $user, $pass , Config::isSet('timezone') ? [\PDO::MYSQL_ATTR_INIT_COMMAND =>"SET time_zone = '".Config::get('timezone')."'"]: null);
 
     }
     public static function init(string $host, string $user, string $pass, string $db): MysqlDatabase
@@ -40,12 +41,14 @@ class MysqlDatabase implements Database
         self::$instance->pdo->exec("
 CREATE TABLE IF NOT EXISTS `state`
 (
+    `id`		 INT AUTO_INCREMENT UNIQUE ,
     `chat_id`    BIGINT NOT NULL COMMENT 'User chat_id',
     `join_date`  TIMESTAMP DEFAULT NOW() NOT NULL,
     `stage_call` TEXT NULL COMMENT 'Stage to be called',
     `stages`     JSON NULL COMMENT 'Array of user stages',
     CONSTRAINT `state_pk`
         PRIMARY KEY (`chat_id`)
+    	
 );
 ");
 
