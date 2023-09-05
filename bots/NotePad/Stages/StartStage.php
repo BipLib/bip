@@ -8,10 +8,11 @@
  *   LICENSE file that was distributed with this source code.
  */
 
-namespace Bots\NotePad\Stages;
+namespace bots\NotePad\Stages;
 
 
 use Bip\App\Stage;
+use Bip\Logger\Logger;
 use Bip\Telegram\Call;
 use Bip\Telegram\Webhook;
 
@@ -45,7 +46,7 @@ class StartStage extends Stage{
                 ['command' => '/start', 'description' => 'Restart The Bot'],
                 ['command' => '/add', 'description' => 'Add A Note To Your Pad'],
                 ['command' => '/list', 'description' => 'List Your Notes'],
-                ['command' => '/delete', 'description' => 'Delete A Note From Your Pad'],
+                ['command' => '/delete', 'description' => 'To Delete A Note From Your Pad'],
                 ['command' => '/clear', 'description' => 'Clear Your Pad'],
                 ['command' => '/about', 'description' => 'About This Bot'],
             ],

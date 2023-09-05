@@ -106,6 +106,10 @@ class Bot
 
         }
 
+        // smart callback_data
+        if (str_starts_with(data(),'@'))
+            route(str_replace('@', '', data()));
+
         // call the stage controller
         self::$bot->stage->controller();
 
