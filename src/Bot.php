@@ -62,8 +62,10 @@ class Bot
             if (!(
                 self::ipInRange($_SERVER['REMOTE_ADDR'], '91.108.4.0/22') // telegram ip range
                 or self::ipInRange($_SERVER['REMOTE_ADDR'], '149.154.160.0/20') // telegram ip range
-                or self::ipInRange($_SERVER['REMOTE_ADDR'], '172.0.0.0/8') // local ip range docker containers
                 or self::ipInRange($_SERVER['REMOTE_ADDR'], '127.0.0.0/8') // local ip range system loop back
+                or self::ipInRange($_SERVER['REMOTE_ADDR'], '10.0.0.0/8') // local ip range class A
+                or self::ipInRange($_SERVER['REMOTE_ADDR'], '172.16.0.0/12') // local ip range class B
+                or self::ipInRange($_SERVER['REMOTE_ADDR'], '192.168.0.0/16') // local ip range class C
             ))
                 die('Unauthorized IP Address !');
 
@@ -100,18 +102,34 @@ class Bot
                 $call = Bot::$stagePath.$call;
                 self::$bot->stage = new $call();
                 foreach ($user['stages'][$user['stage_call']] as $propertyName => $propertyValue)
-                    self::$bot->stage->{$propertyName} = $propertyValue;
+                    if(property_exists(self::$bot->stage,$propertyName))
+                        self::$bot->stage->{$propertyName} = $propertyValue;
+                    else
+                        Logger::add('Removing Unset Property : the property ['.$propertyName.' with value of :  '.var_export($propertyValue,true).'] in stage '.self::$bot->stage::class. ' not exist. it be removed form database. user :'.peer(),'stage');
 
             }
 
+        }
+
+        // smart callback_data
+        if (str_starts_with(data(),'@')){
+            $smartCallback = explode('#',data());
+            route(str_replace('@', '', $smartCallback[0]));
         }
 
         // call the stage controller
         self::$bot->stage->controller();
 
         // call the reserved node
-        if(!empty(self::$bot->routedNode))
-            self::$bot->stage->{self::$bot->routedNode }();
+        if(!empty(self::$bot->routedNode)) {
+            if (isset($smartCallback) && count($smartCallback)>1)
+                // pass all $smartCallback data members expect index zero
+                self::$bot->stage->{self::$bot->routedNode}(...array_splice($smartCallback, 1,count($smartCallback)-1));
+            else
+                self::$bot->stage->{self::$bot->routedNode}();
+
+
+        }
         elseif(!empty(self::$bot->stage->_node))
             self::$bot->stage->{self::$bot->stage->_node }();
         elseif (empty(self::$bot->stage->_node) or self::$bot->stage->_node == 'default')
