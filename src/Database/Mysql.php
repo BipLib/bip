@@ -10,10 +10,11 @@
 
 namespace Bip\Database;
 
+use Bip\App\Config;
 use Bip\App\Stage;
 use Bip\Bot;
 
-class MysqlDatabase implements Database
+class Mysql implements Database
 {
     private static $instance = null;
 
@@ -22,13 +23,13 @@ class MysqlDatabase implements Database
 
     private function __construct(string $host, string $user, string $pass, string $db)
     {
-        $this->pdo = new \PDO("mysql:host=$host;dbname=$db", $user, $pass);
+        $this->pdo = new \PDO("mysql:host=$host;dbname=$db", $user, $pass , Config::isSet('timezone') ? [\PDO::MYSQL_ATTR_INIT_COMMAND =>"SET time_zone = '".Config::get('timezone')."'"]: null);
 
     }
-    public static function init(string $host, string $user, string $pass, string $db): MysqlDatabase
+    public static function init(string $host, string $user, string $pass, string $db): Mysql
     {
         if (self::$instance === null)
-            self::$instance = new MysqlDatabase($host, $user, $pass, $db);
+            self::$instance = new Mysql($host, $user, $pass, $db);
         return self::$instance;
     }
 
@@ -40,12 +41,14 @@ class MysqlDatabase implements Database
         self::$instance->pdo->exec("
 CREATE TABLE IF NOT EXISTS `state`
 (
+    `id`		 INT AUTO_INCREMENT UNIQUE ,
     `chat_id`    BIGINT NOT NULL COMMENT 'User chat_id',
     `join_date`  TIMESTAMP DEFAULT NOW() NOT NULL,
     `stage_call` TEXT NULL COMMENT 'Stage to be called',
     `stages`     JSON NULL COMMENT 'Array of user stages',
     CONSTRAINT `state_pk`
         PRIMARY KEY (`chat_id`)
+    	
 );
 ");
 
@@ -90,6 +93,14 @@ CREATE TABLE IF NOT EXISTS `state`
     public static function getPdo(): \PDO
     {
         return self::$instance->pdo;
+    }
+    public static function prepare(string $query , array $options = []): \PDOStatement | false
+    {
+        return self::$instance->pdo->prepare($query, $options);
+    }
+    public static function query(string $query): \PDOStatement | false
+    {
+        return self::$instance->pdo->query($query);
     }
     public static function insert(string $table, array $data): bool
     {
