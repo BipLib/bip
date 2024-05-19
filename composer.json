@@ -6,11 +6,12 @@
       "files": ["src/helpers.php"],
         "psr-4": {
             "Bip\\": "src/",
-            "Bots\\": "bots/"
+            "Bots\\": "../bots/"
         }
     },
   "require": {
     "ext-curl": "*",
-    "ext-pdo": "*"
+    "ext-pdo": "*",
+    "ext-openssl": "*"
   }
 }
