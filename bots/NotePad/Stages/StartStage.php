@@ -48,7 +48,7 @@ class StartStage extends Stage{
                 ['command' => '/start', 'description' => 'Restart The Bot'],
                 ['command' => '/add', 'description' => 'Add A Note To Your Pad'],
                 ['command' => '/list', 'description' => 'List Your Notes'],
-                ['command' => '/delete', 'description' => 'Delete A Note From Your Pad'],
+                ['command' => '/delete', 'description' => 'To Delete A Note From Your Pad'],
                 ['command' => '/clear', 'description' => 'Clear Your Pad'],
                 ['command' => '/about', 'description' => 'About This Bot'],
             ],

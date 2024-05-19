@@ -9,7 +9,7 @@ Config::add([
     'database'=>[
         'driver' => LazyJson::class,
         'args'=>[
-        'file' => 'database.json'
+            'file' => 'database.json'
         ]
     ]
 ]);

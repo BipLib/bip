@@ -223,5 +223,5 @@ if (! function_exists('acq')){
             cache_time: $cache_time
         );
     }
-    
+
 }
