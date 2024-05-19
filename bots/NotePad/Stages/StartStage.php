@@ -8,10 +8,11 @@
  *   LICENSE file that was distributed with this source code.
  */
 
-namespace Bots\NotePad\Stages;
+namespace bots\NotePad\Stages;
 
 
 use Bip\App\Stage;
+use Bip\Logger\Logger;
 use Bip\Telegram\Call;
 use Bip\Telegram\Webhook;
 
@@ -36,10 +37,12 @@ class StartStage extends Stage{
         route('delete')->onMessageText('/delete');
         route('clear')->onMessageText('/clear');
         route('about')->onMessageText('/about');
+
     }
 
     # Start Node.
     public function start(){
+        Logger::add('Start Node Called.');
         Call::setMyCommands(
             commands: [
                 ['command' => '/start', 'description' => 'Restart The Bot'],
