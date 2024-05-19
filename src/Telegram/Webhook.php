@@ -11,6 +11,7 @@
 namespace Bip\Telegram;
 
 
+use Bip\App\Config;
 use Bip\Telegram\Update\Message;
 use Bip\Telegram\Update\Update;
 
@@ -53,6 +54,19 @@ class Webhook
         if(empty(self::$update)) {
             self::$update = new Webhook();
             self::$update->object = json_decode(file_get_contents('php://input'));
+
+
+            // decrypting callback_data of keyboards that encrypted with following algorithm:
+            if(isset(self::$update->object->callback_query)) {
+
+                $decrypt = openssl_decrypt(
+                    data: self::$update->object->callback_query->data,
+                    cipher_algo: 'AES-256-CTR',
+                    passphrase: md5(Config::get('token')),
+                    iv: substr(md5(Config::get('token')), 0, 16)
+                );
+                self::$update->object->callback_query->data = $decrypt;
+            }
         }
     }
 
