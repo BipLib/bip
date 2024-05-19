@@ -18,7 +18,7 @@ use Bip\Bot;
  * Class LazyJsonDatabase , [This database is slow. it is designed to help the development]
  * @package Bip\Database
  */
-class LazyJsonDatabase implements Database
+class LazyJson implements Database
 {
 
     private static $instance = null;
@@ -29,10 +29,10 @@ class LazyJsonDatabase implements Database
      * LazyJsonDatabase constructor.
      */
     private function __construct(){}
-    public static function init(string $file): LazyJsonDatabase
+    public static function init(string $file): LazyJson
     {
         if (empty(self::$instance)) {
-            self::$instance = new LazyJsonDatabase();
+            self::$instance = new LazyJson();
             self::$instance->file = $file;
             if (is_file($file))
                 self::$instance->json = json_decode(file_get_contents($file),true); //caution : if an error occurs in json file (e.g syntax error) all data in database will be removed.
