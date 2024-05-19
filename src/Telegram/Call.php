@@ -53,7 +53,7 @@ use Bip\Logger\Logger;
  * @method static object setChatTitle(int $chat_id, string $title) Use this method to change the title of a chat. Titles can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Returns True on success.
  * @method static object setChatDescription(int $chat_id, string $description = null) Use this method to change the description of a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Returns True on success.
  * @method static object pinChatMessage(int $chat_id, int $message_id, bool $disable_notification = null) Use this method to pin a message in a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Returns True on success.
- * @method static object unpinChatMessage(int $chat_id) Use this method to unpin a message in a supergroup chat. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Returns True on success.
+ * @method static object unpinChatMessage(int $chat_id , int $message_id) Use this method to unpin a message in a supergroup chat. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Returns True on success.
  * @method static object leaveChat(int $chat_id) Use this method for your bot to leave a group, supergroup or channel. Returns True on success.
  * @method static object getChat(int $chat_id) Use this method to get up to date information about the chat (current name of the user for one-on-one conversations, current username of a user, group or channel, etc.). Returns a Chat object on success.
  * @method static object getChatAdministrators(int $chat_id) Use this method to get a list of administrators in a chat. On success, returns an Array of ChatMember objects that contains information about all chat administrators except other bots. If the chat is a group or a supergroup and no administrators were appointed, only the creator will be returned.
@@ -105,9 +105,31 @@ class Call
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        foreach ($params as $paramKey => $paramValue)
-            if(is_array($paramValue))
+        foreach ($params as $paramKey => $paramValue) {
+            if($paramKey == 'reply_markup')
+                if(isset($paramValue['inline_keyboard']))
+                    foreach ($paramValue['inline_keyboard'] as $key => $value)
+                        foreach ($value as $key2 => $value2)
+                            if(isset($value2['callback_data'])){
+                                $encrypt = openssl_encrypt(
+                                    data: $value2['callback_data'],
+                                    cipher_algo:'AES-256-CTR',
+                                    passphrase: md5(Config::get('token')),
+                                    iv: substr(md5(Config::get('token')),0,16)); // each 3 days iv will change and old callback data will not work
+                                if(strlen($encrypt) > 64)
+                                    throw new \Exception('Callback data is too long. Crypt of callback data must be less than 64 characters. ['.$value2['callback_data'].'] -> ['.$encrypt.'] len : '.strlen($encrypt));
+                                $paramValue['inline_keyboard'][$key][$key2]['callback_data'] =  $encrypt;
+                            }
+
+
+
+
+
+
+            if (is_array($paramValue))
                 $params[$paramKey] = json_encode($paramValue);
+
+        }
 
         curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
         curl_setopt($ch,CURLOPT_TIMEOUT,10);
