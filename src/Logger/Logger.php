@@ -52,15 +52,17 @@ class Logger
 
         $logsArr = json_decode(file_get_contents("logs/$logFile.json.log"));
 
-        $logsArr[] = [
+
+        array_unshift($logsArr,[
             'log' => $log,
             'number'=> count($logsArr),
             'time' => time(),
-        ];
+        ]);
 
         // remove first log if log count is more than logCount
         if(count($logsArr) > self::$logger->logCount)
             array_shift($logsArr);
+
 
         file_put_contents("logs/$logFile.json.log",json_encode($logsArr,JSON_PRETTY_PRINT));
 
