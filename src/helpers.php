@@ -14,6 +14,7 @@ if (! function_exists('msg')) {
                 chat_id : peer(),
                 text : $text,
                 parse_mode : 'html',
+                disable_web_page_preview: true,
                 reply_markup: $reply_markup
             );
         }
@@ -28,10 +29,11 @@ if(! function_exists('msgr')){
     function msgr(string $text,array $reply_markup = null) : void
     {
         \Bip\Telegram\Call::sendMessage(
-            chat_id : peer(),
-            text : $text,
-            parse_mode : 'html',
-            reply_to_message_id : \Bip\Telegram\Webhook::getObject()->message->message_id,
+            chat_id: peer(),
+            text: $text,
+            parse_mode: 'html',
+            disable_web_page_preview: true,
+            reply_to_message_id: \Bip\Telegram\Webhook::getObject()->message->message_id,
             reply_markup: $reply_markup
         );
     }
@@ -156,15 +158,24 @@ if (! function_exists('emsg')){
      * @param array|null $reply_markup
      * @return void
      */
-    function emsg(string $text,array $reply_markup = null): void
+    function emsg(string $text,array $reply_markup = null, $message_id = null): void
     {
-        \Bip\Telegram\Call::editMessageText(
+        // if come from callback means the message must be edited.
+        if(isset(\Bip\Telegram\Webhook::getObject()->callback_query->message->message_id))
+            \Bip\Telegram\Call::editMessageText(
             text: $text,
             chat_id: peer(),
-            message_id: \Bip\Telegram\Webhook::getObject()->callback_query->message->message_id,
+            message_id: $message_id ?: \Bip\Telegram\Webhook::getObject()->callback_query->message->message_id,
             parse_mode: 'html',
-            reply_markup: $reply_markup
-        );
+            disable_web_page_preview: true,
+            reply_markup: $reply_markup);
+        else{
+            \Bip\Telegram\Call::sendMessage(
+                chat_id: peer(),
+                text: $text,
+                parse_mode: 'html',
+                reply_markup: $reply_markup);
+        }
     }
 }
 if (! function_exists('deleteMessage')){
@@ -194,7 +205,23 @@ if (! function_exists('delLastMsg')){
         );
     }
 }
-
-
-
-
+if (! function_exists('acq')){
+    /**
+     * answer callback query.
+     * @param string $text
+     * @param bool $show_alert
+     * @param string $url
+     * @param int $cache_time
+     * @return void
+     */
+    function acq(string $text = '',bool $show_alert = false,string $url = '',int $cache_time = 0): object{
+        return \Bip\Telegram\Call::answerCallbackQuery(
+            callback_query_id: \Bip\Telegram\Webhook::getObject()?->callback_query?->id ?: '',
+            text: $text,
+            show_alert: $show_alert,
+            url: $url,
+            cache_time: $cache_time
+        );
+    }
+    
+}
