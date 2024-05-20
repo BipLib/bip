@@ -8,7 +8,7 @@
  *   LICENSE file that was distributed with this source code.
  */
 
-namespace bots\NotePad\Stages;
+namespace Bots\NotePad\Stages;
 
 
 use Bip\App\Stage;

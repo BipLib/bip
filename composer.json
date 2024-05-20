@@ -5,8 +5,7 @@
     "autoload": {
       "files": ["src/helpers.php"],
         "psr-4": {
-            "Bip\\": "src/",
-            "Bots\\": "../bots/"
+            "Bip\\": "src/"
         }
     },
   "require": {
