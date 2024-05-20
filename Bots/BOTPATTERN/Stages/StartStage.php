@@ -25,4 +25,9 @@ class StartStage extends Stage{
         msg("Welcome ".text()." !");
         closeNode();
     }
+    public function default()
+    {
+        msg("I don't understand you!");
+        closeNode();
+    }
 }
