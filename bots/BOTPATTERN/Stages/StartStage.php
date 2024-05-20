@@ -8,7 +8,7 @@
  *   LICENSE file that was distributed with this source code.
  */
 
-namespace Stages;
+namespace Bots\BIP_BOT_USERNAME\Stages;
 use Bip\App\Stage;
 
 
