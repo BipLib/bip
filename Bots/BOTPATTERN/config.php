@@ -9,7 +9,7 @@ Config::add([
     'database'=>[
         'driver' => Mysql::class,
         'args'=>[
-            'host' => 'mysql',
+            'host' => 'BIP_DATABASE_HOST',
             'pass' => $_ENV['MYSQL_ROOT_PASSWORD'],
             'user' => 'root',
             'db' => 'BIP_DATABASE_NAME',
