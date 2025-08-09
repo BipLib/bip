@@ -11,7 +11,6 @@
 namespace Bip;
 
 
-
 use Bip\App\Config;
 use Bip\App\RouteRule;
 use Bip\App\Stage;
@@ -49,6 +48,8 @@ class Bot
             $message['message'] = $exception->getMessage();
             $message['file'] = $exception->getFile();
             $message['line'] = $exception->getLine();
+            
+            
             Logger::add($message,'errors');
             echo 'Something is Wrong! Please try again later.';
         });
